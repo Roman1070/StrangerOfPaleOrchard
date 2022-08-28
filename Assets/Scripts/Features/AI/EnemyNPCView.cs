@@ -1,10 +1,12 @@
 using DG.Tweening;
 using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
+using Photon.Pun;
 
-public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget
+public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservable
 {
     [Inject] private UpdateProvider _updateProvider;
 
@@ -31,15 +33,22 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget
     private Rigidbody _rb;
 
     private Vector3 _startPoint;
-
-    private float _distanceToPlayer;
+    private NPCAttackData _currentAttack;
     private Vector3 _destinationPoint;
     private PlayerView _target;
-    private float _health;
+    private IDamagable _attackTarget;
+    private Coroutine _attackRoutine;
+
+    private float DistanceToTarget => Vector3.Distance(transform.position, _target.transform.position);
+    public float Health { get; private set; }
+
+    public Transform Transform => transform;
+
+    public bool IsAlive => Health>0;
 
     private void Start()
     {
-        _health = _config.MaxHealth;
+        Health = _config.MaxHealth;
         _updateProvider.Updates.Add(LocalUpdate);
         _startPoint = transform.position;
         _destinationPoint = GetRandomDestinationPoint();
@@ -54,7 +63,7 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget
 
     private void LocalUpdate()
     {
-        if (_health <= 0) return;
+        if (Health <= 0) return;
         UpdateState();
     }
 
@@ -63,45 +72,60 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget
         var collidersInDetectionRange = Physics.OverlapSphere(transform.position, _config.DetectionDistance, LayerMask.GetMask("Player"));
         if (collidersInDetectionRange.Length>0)
         {
-            if (_target == null) _target = collidersInDetectionRange[0].transform.GetComponent<PlayerView>();
+            if (_target == null)
+            {
+                _target = collidersInDetectionRange[0].transform.GetComponent<PlayerView>();
+                _attackTarget = _target;
+            }
         }
         else
         {
-            if(_target!=null)Debug.LogError(1);
             _target = null;
         }
 
         if (_target != null)
         {
-            float distanceToTarget = Vector3.Distance(transform.position, _target.transform.position);
-            if (distanceToTarget <= _config.AttackRange) Attack();
-            else Chase();
+            if (DistanceToTarget <= _config.AttackRange)
+            {
+                if (!_states[NPCState.Attacking])
+                {
+                    _animator.SetLayerWeightSmooth(this, "CombatLayer", true, 8);
+                    _attackRoutine = StartCoroutine(Attack());
+                }
+            }
+            else if (DistanceToTarget > _config.AttackRange)
+            {
+                if (_states[NPCState.Attacking])
+                {
+                    _currentAttack = null;
+                    _states[NPCState.Attacking] = false;
+                    _animator.SetTrigger("exit combat");
+                    _animator.SetLayerWeightSmooth(this, "CombatLayer", false, 8);
+                    StopCoroutine(_attackRoutine);
+                }
+                Chase();
+            }
         }
     }
 
-    private void Attack()
+    private IEnumerator Attack()
     {
-        if (_health <= 0) return;
+        if (Health <= 0) yield return null;
 
         _states[NPCState.Attacking] = true;
-        var attack = _config.Attacks.Random();
-        _animator.SetTrigger(attack.Id);
 
-        DOVirtual.DelayedCall(attack.Duration, () =>
+        _currentAttack = _config.GetRandomAttack();
+        _animator.SetTrigger(_currentAttack.Id);
+        _attackTarget.TakeDamage(10);
+
+        while (_target!=null && DistanceToTarget <= _config.AttackRange)
         {
-            if (_distanceToPlayer <= _config.AttackRange)
-            {
-                Attack();
-            }
-            else
-            {
-                _states[NPCState.Attacking] = false;
-                _animator.SetTrigger("exit combat");
-                Chase();
-                _animator.SetLayerWeightSmooth(this, "MovementLayer", true, 8);
-                _animator.SetLayerWeightSmooth(this, "CombatLayer", false, 8);
-            }
-        });
+            if (Health <= 0) yield return null;
+            yield return new WaitForSeconds(_currentAttack.Duration);
+            _currentAttack = _config.GetRandomAttack(_currentAttack.Id);
+            _animator.SetTrigger(_currentAttack.Id);
+            _attackTarget.TakeDamage(10);
+        }
     }
 
     private void Chase()
@@ -163,12 +187,25 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget
         _navMeshAgent.isStopped = true;
         _animator.SetLayerWeight(_animator.GetLayerIndex("CombatLayer"), 0);
         GetComponent<Collider>().enabled = false;
+        enabled = false;
     }
 
-    public void TakeDamage(int damage, float pushbackForce)
+    public void TakeDamage(int damage)
     {
-        if (_health <= 0) return;
-        _health -= damage;
-        if (_health <= 0) Die();
+        if (Health <= 0) return;
+        Health -= damage;
+        if (Health <= 0) Die();
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(Health);
+        }
+        else
+        {
+            Health = (float)stream.ReceiveNext();
+        }
     }
 }

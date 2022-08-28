@@ -12,12 +12,12 @@ public enum ItemSlot
     Consumable2
 }
 
-public class OnEquipedItemChangedSignal : ISignal
+public class OnEquippedItemChangedSignal : ISignal
 {
     public Item Item;
     public ItemSlot Slot;
 
-    public OnEquipedItemChangedSignal(Item item, ItemSlot slot)
+    public OnEquippedItemChangedSignal(Item item, ItemSlot slot)
     {
         Item = item;
         Slot = slot;

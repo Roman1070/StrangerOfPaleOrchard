@@ -56,6 +56,7 @@ MonoBehaviour:
   - {fileID: 9041829990214179640, guid: c1ffb0ed8aedc2b45a565dda553c4f98, type: 3}
   - {fileID: 6547303761913226102, guid: 130127cba3bf8274ea31dfc53e52ce57, type: 3}
   - {fileID: 1772917884285995266, guid: a9607844fa69c334ba8a2283e5669aaa, type: 3}
+  - {fileID: 5853374378521967676, guid: 3d9b531bad895f24292e2937cea40010, type: 3}
   _parentNewObjectsUnderContext: 1
   _editorReflectionBakingCoverageMode: 0
   _buildsReflectionBakingCoverageMode: 0

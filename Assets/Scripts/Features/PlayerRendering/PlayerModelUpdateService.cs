@@ -21,10 +21,10 @@ public class PlayerModelUpdateService : LoadableService
         _renderModel = renderModel;
         _player = player;
         _offsetConfig = offsetConfig;
-        signalBus.Subscribe<OnEquipedItemChangedSignal>(OnEquipementChanged, this);
+        signalBus.Subscribe<OnEquippedItemChangedSignal>(OnEquipementChanged, this);
     }
 
-    private void OnEquipementChanged(OnEquipedItemChangedSignal obj)
+    private void OnEquipementChanged(OnEquippedItemChangedSignal obj)
     {
         if (_equippedGear.Keys.Contains(obj.Slot) && _equippedGear[obj.Slot]!=null)
         {
@@ -62,6 +62,6 @@ public class PlayerModelUpdateService : LoadableService
     public override void OnServicesLoaded(params LoadableService[] services)
     {
         _inventoryService = services.First(s => s is InventoryService) as InventoryService;
-        _signalBus.FireSignal(new OnEquipedItemChangedSignal(_inventoryService.GetItem("WEAPON_SWORD_1"), ItemSlot.Weapon));
+        _signalBus.FireSignal(new OnEquippedItemChangedSignal(_inventoryService.GetItem("WEAPON_SWORD_1"), ItemSlot.Weapon));
     }
 }

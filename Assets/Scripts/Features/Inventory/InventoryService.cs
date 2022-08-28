@@ -50,16 +50,26 @@ public class InventoryService : LoadableService
     }
 
     private List<InventoryControllerBase> _controllers;
+    private Inventory _inventory;
 
-    public Inventory Inventory { get; private set; }
+    public Inventory Inventory
+    { 
+        get
+        {
+            if (_inventory == null)
+            {
+                _inventory = new Inventory();
+                _inventory.CurrentWeaponType = WeaponType.OneHanded;
+            }
+            return _inventory;
+        } 
+    }
 
     public InventoryService(SignalBus signalBus, ItemsMap itemsMap) : base(signalBus)
     {
         ItemsMap = itemsMap;
-        Inventory = new Inventory();
-        Inventory.CurrentWeaponType = WeaponType.OneHanded;
         _signalBus.Subscribe<OnItemCountChangedSignal>(ChangeItemCount, this);
-        _signalBus.Subscribe<OnEquipedItemChangedSignal>(OnEquipementChanged, this);
+        _signalBus.Subscribe<OnEquippedItemChangedSignal>(OnEquipementChanged, this);
         _signalBus.FireSignal(new OnItemCountChangedSignal(new EnumerableItem[]
         {
             new EnumerableItem("WEAPON_SWORD_1",1),
@@ -71,7 +81,7 @@ public class InventoryService : LoadableService
         InitControllers();
     }
 
-    private void OnEquipementChanged(OnEquipedItemChangedSignal obj)
+    private void OnEquipementChanged(OnEquippedItemChangedSignal obj)
     {
         if (obj.Slot == ItemSlot.Weapon)
             Inventory.CurrentWeaponType = obj.Item.GroupDef.WeaponType;

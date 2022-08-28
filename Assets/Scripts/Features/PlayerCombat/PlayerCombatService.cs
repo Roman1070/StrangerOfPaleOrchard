@@ -1,0 +1,111 @@
+using System;
+using System.Collections;
+using System.Linq;
+using UnityEngine;
+
+public class PlayerCombatService : LoadableService
+{
+    private UpdateProvider _updateProvider;
+    private Camera _camera;
+    private IDamagable _target;
+    private PlayerView _player;
+    private PlayerCombatConfig _config;
+    private CoroutineExecutor _executor;
+    private PlayerStatesService _states;
+    private PlayerAttackData _currentAttack;
+    private PlayerDataService _dataService;
+    private Animator _animator;
+    private InventoryService _inventory;
+    private AttackType _attackType;
+    private Coroutine _attackRoutine;
+
+    private float DistanceToTarget => Vector3.Distance(_player.transform.position, _target.Transform.position);
+
+    public PlayerCombatService(SignalBus signalBus, UpdateProvider updateProvider, Camera camera, PlayerView player, PlayerCombatConfig config, CoroutineExecutor executor) : base(signalBus)
+    {
+        _updateProvider = updateProvider;
+        _camera = camera;
+        _player = player;
+        _config = config;
+        _executor = executor;
+        _animator = _player.Model.GetComponent<Animator>();
+    }
+
+    private void Update()
+    {
+        CheckInput();
+        if (_target!=null && DistanceToTarget <= _config.AttackRange)
+        {
+            if (!_states.States[PlayerState.Attacking])  _attackRoutine= _executor.StartCoroutine(Attack());
+        }
+        else
+        {
+            if (_attackRoutine != null && _states.States[PlayerState.Attacking])
+            {
+                InterruptAttack();
+            }
+        }
+    }
+
+    private void InterruptAttack()
+    {
+        _target = null;
+        _executor.StopCoroutine(_attackRoutine);
+        _states.States[PlayerState.Attacking] = false;
+        _animator.SetLayerWeightSmooth(_executor, PlayerCombatConfig.LayersMappings[_attackType], false, 4);
+    }
+
+    private IEnumerator Attack()
+    {
+        if (_dataService.DynamicData.Health <= 0) yield return null;
+
+        _states.States[PlayerState.Attacking] = true;
+
+        _attackType = _states.States[PlayerState.IsArmed] ? (AttackType)_inventory.Inventory.CurrentWeaponType : AttackType.Disarmed;
+        _currentAttack = _config.GetRandomAttack("", _attackType);
+        _animator.SetLayerWeightSmooth(_executor,PlayerCombatConfig.LayersMappings[_attackType],true,4);
+        _animator.SetTrigger(_currentAttack.Id);
+        _target.TakeDamage(10);
+
+        while (_target != null && DistanceToTarget <= _config.AttackRange &&_target.IsAlive)
+        {
+            if (_dataService.DynamicData.Health <= 0) yield return null;
+            yield return new WaitForSeconds(_currentAttack.Duration);
+            _currentAttack = _config.GetRandomAttack(_currentAttack.Id, _attackType);
+            _animator.SetTrigger(_currentAttack.Id);
+            _target.TakeDamage(10);
+            if (!_target.IsAlive)
+            {
+                InterruptAttack();
+            }
+        }
+    }
+
+    private void CheckInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out var hit))
+            {
+                if (hit.collider.TryGetComponent(out IDamagable target))
+                {
+                    _target = target;
+                }
+                else
+                {
+                    _target = null;
+                    if (_attackRoutine != null &&_states.States[PlayerState.Attacking]) InterruptAttack();
+                }
+            }
+        }
+    }
+    public override void OnServicesLoaded(params LoadableService[] services)
+    {
+        _states = services.FirstOrDefault(s => s is PlayerStatesService) as PlayerStatesService;
+        _dataService = services.FirstOrDefault(s => s is PlayerDataService) as PlayerDataService;
+        _inventory = services.FirstOrDefault(s => s is InventoryService) as InventoryService;
+
+        _player.ThrowDependencies(_signalBus, _dataService.DynamicData);
+        _updateProvider.Updates.Add(Update);
+    }
+}

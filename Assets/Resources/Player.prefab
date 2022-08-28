@@ -215,6 +215,7 @@ MonoBehaviour:
   HandAnchor: {fileID: 3756727896613828499}
   WeaponsHolder: {fileID: 1803861602596607005}
   MoveAnim: {fileID: 684478613}
+  Photon: {fileID: 8210251300837505247}
 --- !u!143 &3099874770490587427
 CharacterController:
   m_ObjectHideFlags: 0

@@ -30,7 +30,11 @@ public class GameServicesLoader : MonoBehaviour
     [Inject]
     protected readonly EquipedWeaponOffsetConfig _weaponOffsetConfig;
     [Inject]
-    protected readonly RenderSpace _playerModel;
+    protected readonly RenderSpace _renderSpace;
+    [Inject]
+    protected readonly CoroutineExecutor _coroutineExecutor;
+    [Inject]
+    protected readonly MainCameraAnchor _mainCameraAnchor;
     #endregion
     private List<LoadableService> _services;
 
@@ -51,9 +55,10 @@ public class GameServicesLoader : MonoBehaviour
             new GameUiService(_signalBus, _gameCanvas, _movementConfig),
             //new DevConsoleService(_signalBus, _gameCanvas),
             new InventoryService(_signalBus, _itemsMap),
+            new PlayerCombatService(_signalBus,_updateProvider,_mainCameraAnchor.Camera,_playerView,_combatConfig,_coroutineExecutor),
             new InventoryUiService(_signalBus, _gameCanvas),
             new PlayerGearService(_signalBus, _playerView, _weaponOffsetConfig),
-            new PlayerModelUpdateService(_signalBus, _playerModel, _playerView, _weaponOffsetConfig),
+            new PlayerModelUpdateService(_signalBus, _renderSpace, _playerView, _weaponOffsetConfig),
             new PlayerDataService(_signalBus, _levelsConfig),
             new PlayerStatesService(_signalBus),
             new VFXService(_signalBus,_playerView)

@@ -16,10 +16,10 @@ public class InventoryEquipementController : InventoryControllerBase
             { ItemSlot.Legs, null},
             { ItemSlot.Boots, null}
         };
-        signalBus.Subscribe<OnEquipedItemChangedSignal>(OnEquipItem, this);
+        signalBus.Subscribe<OnEquippedItemChangedSignal>(OnEquipItem, this);
     }
 
-    private void OnEquipItem(OnEquipedItemChangedSignal obj)
+    private void OnEquipItem(OnEquippedItemChangedSignal obj)
     {
         _equippedItems[obj.Slot] = obj.Item;
         _signalBus.FireSignal(new UpdateEquipedItemsDataSignal(_equippedItems));

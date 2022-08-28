@@ -1,7 +1,6 @@
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.AI;
-using DG.Tweening;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -16,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private float _attackRange;
 
+    private UpdateProvider _updateProvider;
     private bool _destinationSet;
     private Transform _target;
     private Vector3 _destination;
@@ -23,10 +23,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        _camera = FindObjectOfType<MainCameraAnchor>().Camera;
+        _camera = FindObjectOfType<MainCameraAnchor>().Camera; //не могу заинжектить потому что нужен спавн плэера через фотон
+        _updateProvider = FindObjectOfType<UpdateProvider>();
+        _updateProvider.Updates.Add(LocalUpdate);
     }
 
-    private void Update()
+    private void LocalUpdate()
     {
         if (!_photon.IsMine) return;
 
@@ -47,7 +49,7 @@ public class PlayerMovement : MonoBehaviour
                 _agent.SetDestination(_destination);
                 Vector3 direction = (_destination - transform.position).normalized;
                 Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime*5);
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5);
             }
         }
         if (_agent.velocity.magnitude >= 0.8f)
@@ -62,7 +64,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void CheckInput()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButton(0))
         {
             if (Physics.Raycast(_camera.ScreenPointToRay(Input.mousePosition), out var hit))
             {

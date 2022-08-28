@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1301908886644380143
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5253527290501751892}
+  - component: {fileID: 1755757077435177615}
+  m_Layer: 0
+  m_Name: ProjectContext
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5253527290501751892
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1301908886644380143}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1755757077435177615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1301908886644380143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4e6589720da476459dc6dd71624b071, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _scriptableObjectInstallers:
+  - {fileID: 11400000, guid: 2d2204ad4e63096469f591b3b6b724f5, type: 2}
+  - {fileID: 11400000, guid: 45e5448c30e3516499bf853f1a17238e, type: 2}
+  - {fileID: 11400000, guid: 38209f094dcd58749a6daff33d91cbab, type: 2}
+  - {fileID: 11400000, guid: 2cc6a4c80568b3347aa5b734d37e6510, type: 2}
+  - {fileID: 11400000, guid: 8653dc7b497552746abb0f302670bb44, type: 2}
+  - {fileID: 11400000, guid: 572b8ac0a7232f946820cfb7050f4c4a, type: 2}
+  - {fileID: 11400000, guid: 9234c391c4af46042b5af382d8522e28, type: 2}
+  _monoInstallers: []
+  _installerPrefabs:
+  - {fileID: 9041829990214179640, guid: c1ffb0ed8aedc2b45a565dda553c4f98, type: 3}
+  - {fileID: 6547303761913226102, guid: 130127cba3bf8274ea31dfc53e52ce57, type: 3}
+  - {fileID: 1772917884285995266, guid: a9607844fa69c334ba8a2283e5669aaa, type: 3}
+  _parentNewObjectsUnderContext: 1
+  _editorReflectionBakingCoverageMode: 0
+  _buildsReflectionBakingCoverageMode: 0
+  _settings:
+    _ensureDeterministicDestructionOrderOnApplicationQuit: 0
+    _displayWarningWhenResolvingDuringInstall: 1
+    _validationRootResolveMethod: 0
+    _validationErrorResponse: 0
+    _signalSettings:
+      _defaultSyncMode: 0
+      _missingHandlerDefaultResponse: 2
+      _requireStrictUnsubscribe: 0
+      _defaultAsyncTickPriority: 1

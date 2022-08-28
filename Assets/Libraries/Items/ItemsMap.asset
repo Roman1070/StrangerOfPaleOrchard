@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 415c53eccf32477438e639766cefc74e, type: 3}
+  m_Name: ItemsMap
+  m_EditorClassIdentifier: 
+  Items:
+  - Id: RESOURCE_WOOD
+    Item: {fileID: 11400000, guid: 42e4f87fe4e4c8147b4c5dbcc1265c66, type: 2}
+  - Id: RESOURCE_STONE
+    Item: {fileID: 11400000, guid: 4f75fdb948fd3ee4db2b80f7570405a1, type: 2}
+  - Id: WEAPON_SWORD_1
+    Item: {fileID: 11400000, guid: 27e98869f6a818b49a7499bf2bae6b7b, type: 2}
+  - Id: WEAPON_SWORD_2
+    Item: {fileID: 11400000, guid: 846fe646456ef3c40b0e5fdd0b88e6a9, type: 2}
+  - Id: WEAPON_SWORD_3
+    Item: {fileID: 11400000, guid: 5afec4b0f59db8f458cd74229713c86c, type: 2}
+  - Id: WEAPON_SWORD_4
+    Item: {fileID: 11400000, guid: 10e63fceb93989d41b95b941e6ef1ed4, type: 2}
+  - Id: WEAPON_SWORD_5
+    Item: {fileID: 11400000, guid: 8d78b171918604644a6beede86551a96, type: 2}

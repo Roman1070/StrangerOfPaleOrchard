@@ -44,6 +44,8 @@ MonoBehaviour:
   - SendRemoteCombatTrigger
   - SendRemoteMovementSpeed
   - RemoteDie
+  - TakeDamageRemote
+  - UpdateTargetRemote
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 1

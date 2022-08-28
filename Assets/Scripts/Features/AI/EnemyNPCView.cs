@@ -77,6 +77,24 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
         UpdateState();
     }
 
+    private void UpdateTarget(IDamagable target)
+    {
+        int id = target != null ? target.Transform.GetComponent<PhotonView>().ViewID : -1;
+        UpdateTargetAction(id);
+        _photonView.RPC("UpdateTargetRemote", RpcTarget.Others, id);
+    }
+
+    private void UpdateTargetAction(int id)
+    {
+        if (id != -1) _target = PhotonView.Find(id).GetComponent<IDamagable>();
+        else _target = null;
+    }
+    [PunRPC]
+    private void UpdateTargetRemote(int id)
+    {
+        UpdateTargetAction(id);
+    }
+
     private void UpdateState()
     {
         var collidersInDetectionRange = Physics.OverlapSphere(transform.position, _config.DetectionDistance, LayerMask.GetMask("Player"));
@@ -84,12 +102,12 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
         {
             if (_target == null)
             {
-                _target = collidersInDetectionRange[0].transform.GetComponent<IDamagable>();
+                UpdateTarget(collidersInDetectionRange[0].transform.GetComponent<IDamagable>());
             }
         }
         else
         {
-            _target = null;
+            if(_target!=null) UpdateTarget(null);
         }
 
         if (_target != null)
@@ -186,12 +204,6 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
         return new Vector3(x, transform.position.y, z);
     }
 
-    [PunRPC]
-    private void RemoteDie()
-    {
-        Die();
-    }
-
     private void Die()
     {
         _animator.SetTrigger("exit combat");
@@ -207,33 +219,31 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
         enabled = false;
     }
 
+
     public void TakeDamage(int damage)
+    {
+        _photonView.RPC("TakeDamageRemote", RpcTarget.All, damage);
+    }
+
+    [PunRPC]
+    private void TakeDamageRemote(int damage)
     {
         Health -= damage;
 
         if (Health <= 0)
         {
             Die();
-           // _photonView.RPC("RemoteDie", RpcTarget.Others);
         }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        if (stream.IsWriting)
+       /*if (stream.IsWriting)
         {
-            stream.SendNext(Health);
-            stream.SendNext(_target!=null? _target.Transform.GetComponent<PhotonView>().ViewID :-1);
+            stream.SendNext();
         }
         else
         {
-            Health = (float)stream.ReceiveNext();
-            if (Health <= 0)
-            {
-                if(!_states[NPCState.Dying])Die();
-            }
-            int viewId = (int)stream.ReceiveNext();
-            if(viewId!=-1) _target = PhotonView.Find(viewId).GetComponent<IDamagable>();
-        }
+        }*/
     }
 }

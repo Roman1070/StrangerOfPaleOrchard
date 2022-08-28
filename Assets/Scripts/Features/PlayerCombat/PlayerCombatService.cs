@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
-
+using DG.Tweening;
 
 public class PlayerCombatService : LoadableService
 {
@@ -67,6 +67,10 @@ public class PlayerCombatService : LoadableService
 
         _states.States[PlayerState.Attacking] = true;
 
+        Vector3 direction = (_target.Transform.position - _player.transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(direction);
+        _player.transform.DORotate(lookRotation.eulerAngles, 0.2f);
+
         _attackType = _states.States[PlayerState.IsArmed] ? (AttackType)_inventory.Inventory.CurrentWeaponType : AttackType.Disarmed;
         _currentAttack = _config.GetRandomAttack("", _attackType);
         _animator.SetLayerWeightSmooth(_executor,PlayerCombatConfig.LayersMappings[_attackType],true,4);
@@ -81,7 +85,7 @@ public class PlayerCombatService : LoadableService
             _animator.SetTrigger(_currentAttack.Id);
             _target.TakeDamage(10);
             _player.Photon.RPC("SendRemoteCombatTrigger", RpcTarget.Others, _currentAttack.Id);
-
+            _player.transform.LookAt(_target.Transform);
             if (!_target.IsAlive)
             {
                 InterruptAttack();

@@ -19,9 +19,12 @@ public class PlayerView : MonoBehaviour, IDamagable
 
     public bool IsAlive => _dynamicData.Health > 0;
 
+    public int Id => 0;
+
     public void ThrowDependencies(SignalBus signalBus, PlayerDynamicData dynamicData)
     {
         if (!Photon.IsMine) return;
+
         _signalBus = signalBus;
         _dynamicData = dynamicData;
     }
@@ -32,10 +35,26 @@ public class PlayerView : MonoBehaviour, IDamagable
         _signalBus.FireSignal(new ChangePlayersHealthSignal(-damage));
     }
 
+
+    [PunRPC]
+    private void SendRemoteCombatTrigger(string id)
+    {
+        var animator = Model.GetComponent<Animator>();
+        animator.SetLayerWeight(4, id=="ExitCombat"? 0 : 1);
+        animator.SetTrigger(id);
+    }
+    [PunRPC]
+    private void SendRemoteMovementSpeed(int speed)
+    {
+        var animator = Model.GetComponent<Animator>();
+        animator.SetFloat("Speed", speed);
+    }
+
     private void Start()
     {
         if (!Photon.IsMine) return;
         transform.position = new Vector3(25.3f, 5, 68.3f);
         GetComponent<NavMeshAgent>().enabled = true;
     }
+
 }

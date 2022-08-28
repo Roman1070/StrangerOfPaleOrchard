@@ -5,6 +5,7 @@ public interface IDamagable
     public Transform Transform { get; }
     public void TakeDamage(int damage);
     public bool IsAlive { get; }
+    public int Id { get; }
 }
 
 public class ChangePlayersHealthSignal : ISignal

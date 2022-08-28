@@ -1,7 +1,11 @@
+using ExitGames.Client.Photon;
+using Photon.Pun;
+using Photon.Realtime;
 using System;
 using System.Collections;
 using System.Linq;
 using UnityEngine;
+
 
 public class PlayerCombatService : LoadableService
 {
@@ -52,6 +56,8 @@ public class PlayerCombatService : LoadableService
         _target = null;
         _executor.StopCoroutine(_attackRoutine);
         _states.States[PlayerState.Attacking] = false;
+        _player.Photon.RPC("SendRemoteCombatTrigger", RpcTarget.Others, "ExitCombat");
+        _animator.SetTrigger("ExitCombat");
         _animator.SetLayerWeightSmooth(_executor, PlayerCombatConfig.LayersMappings[_attackType], false, 4);
     }
 
@@ -74,6 +80,8 @@ public class PlayerCombatService : LoadableService
             _currentAttack = _config.GetRandomAttack(_currentAttack.Id, _attackType);
             _animator.SetTrigger(_currentAttack.Id);
             _target.TakeDamage(10);
+            _player.Photon.RPC("SendRemoteCombatTrigger", RpcTarget.Others, _currentAttack.Id);
+
             if (!_target.IsAlive)
             {
                 InterruptAttack();
@@ -89,6 +97,7 @@ public class PlayerCombatService : LoadableService
             {
                 if (hit.collider.TryGetComponent(out IDamagable target))
                 {
+                    if(target.Transform.GetComponent<PlayerView>()==null)
                     _target = target;
                 }
                 else

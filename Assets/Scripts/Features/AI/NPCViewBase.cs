@@ -16,6 +16,7 @@ public enum NPCState
     Attacking,
     Speaking,
     Escaping,
+    Dying
 }
 
 public abstract class NPCViewBase : View

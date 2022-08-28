@@ -5,20 +5,25 @@ using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
 using Photon.Pun;
+using Photon.Realtime;
+using ExitGames.Client.Photon;
+using System.Linq;
 
-public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservable
+public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservable
 {
     [Inject] private UpdateProvider _updateProvider;
 
     protected override NPCType NPCType => NPCType.Enemy;
 
     public Transform Target => transform;
+    public int Id => 1;
 
     private Dictionary<NPCState, bool> _states = new Dictionary<NPCState, bool>()
     {
         {NPCState.Chasing, false },
         {NPCState.Patroling,true },
-        {NPCState.Attacking,false }
+        {NPCState.Attacking,false },
+        {NPCState.Dying,false }
     };
 
     [SerializeField]
@@ -30,21 +35,25 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservabl
     [SerializeField]
     private EnemyNPCConfig _config;
     [SerializeField]
-    private Rigidbody _rb;
+    private PhotonView _photonView;
 
     private Vector3 _startPoint;
     private NPCAttackData _currentAttack;
     private Vector3 _destinationPoint;
-    private PlayerView _target;
-    private IDamagable _attackTarget;
+    private IDamagable _target;
     private Coroutine _attackRoutine;
+    [SerializeField]
+    private float health;
 
-    private float DistanceToTarget => Vector3.Distance(transform.position, _target.transform.position);
-    public float Health { get; private set; }
+    private float DistanceToTarget => Vector3.Distance(transform.position, _target.Transform.position);
+
+    [property: SerializeField]
+    public float Health { get => health; private set => health = value; }
 
     public Transform Transform => transform;
 
-    public bool IsAlive => Health>0;
+    public bool IsAlive => Health > 0;
+
 
     private void Start()
     {
@@ -64,18 +73,18 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservabl
     private void LocalUpdate()
     {
         if (Health <= 0) return;
+
         UpdateState();
     }
 
     private void UpdateState()
     {
         var collidersInDetectionRange = Physics.OverlapSphere(transform.position, _config.DetectionDistance, LayerMask.GetMask("Player"));
-        if (collidersInDetectionRange.Length>0)
+        if (collidersInDetectionRange.Length > 0)
         {
             if (_target == null)
             {
-                _target = collidersInDetectionRange[0].transform.GetComponent<PlayerView>();
-                _attackTarget = _target;
+                _target = collidersInDetectionRange[0].transform.GetComponent<IDamagable>();
             }
         }
         else
@@ -93,7 +102,7 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservabl
                     _attackRoutine = StartCoroutine(Attack());
                 }
             }
-            else if (DistanceToTarget > _config.AttackRange)
+            else if (DistanceToTarget > _config.AttackRange && DistanceToTarget < _config.ChaseDistance)
             {
                 if (_states[NPCState.Attacking])
                 {
@@ -105,6 +114,7 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservabl
                 }
                 Chase();
             }
+            else Patrol();
         }
     }
 
@@ -116,15 +126,15 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservabl
 
         _currentAttack = _config.GetRandomAttack();
         _animator.SetTrigger(_currentAttack.Id);
-        _attackTarget.TakeDamage(10);
+        _target.TakeDamage(10);
 
-        while (_target!=null && DistanceToTarget <= _config.AttackRange)
+        while (_target != null && DistanceToTarget <= _config.AttackRange)
         {
             if (Health <= 0) yield return null;
             yield return new WaitForSeconds(_currentAttack.Duration);
             _currentAttack = _config.GetRandomAttack(_currentAttack.Id);
             _animator.SetTrigger(_currentAttack.Id);
-            _attackTarget.TakeDamage(10);
+            _target.TakeDamage(10);
         }
     }
 
@@ -133,25 +143,25 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservabl
         _states[NPCState.Patroling] = false;
         _states[NPCState.Chasing] = true;
         _animator.SetFloat("Speed", 2, 0.15f, Time.deltaTime);
-        _destinationPoint = _target.transform.position;
+        _destinationPoint = _target.Transform.position;
 
-        if (Vector3.Distance(transform.position, _destinationPoint) < _navMeshAgent.stoppingDistance) 
-        { 
+        if (Vector3.Distance(transform.position, _destinationPoint) < _navMeshAgent.stoppingDistance)
+        {
             _navMeshAgent.isStopped = true;
             _navMeshAgent.velocity = Vector3.zero;
         }
-        else if (Vector3.Distance(transform.position, _destinationPoint) > _navMeshAgent.stoppingDistance+0.5f)
+        else if (Vector3.Distance(transform.position, _destinationPoint) > _navMeshAgent.stoppingDistance + 0.5f)
         {
             _navMeshAgent.isStopped = false;
             _navMeshAgent.SetDestination(_destinationPoint);
             _navMeshAgent.speed = _config.ChaseSpeed;
-            if(Physics.Raycast(transform.position+Vector3.up,_target.transform.position- transform.position, out var hit, 10))
+            if (Physics.Raycast(transform.position + Vector3.up, _target.Transform.position - transform.position, out var hit, 10))
             {
                 if (hit.collider.TryGetComponent<PlayerView>(out var player))
-                    _navMeshAgent.velocity = (player.transform.position-transform.position).normalized * _config.ChaseSpeed;
+                    _navMeshAgent.velocity = (player.transform.position - transform.position).normalized * _config.ChaseSpeed;
             }
         }
-        transform.LookAt(_target.transform);
+        transform.LookAt(_target.Transform);
 
     }
     private void Patrol()
@@ -176,10 +186,17 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservabl
         return new Vector3(x, transform.position.y, z);
     }
 
+    [PunRPC]
+    private void RemoteDie()
+    {
+        Die();
+    }
+
     private void Die()
     {
         _animator.SetTrigger("exit combat");
         _animator.SetTrigger("dying");
+        _states[NPCState.Dying] = true;
         _states[NPCState.Attacking] = false;
         _states[NPCState.Chasing] = false;
         _states[NPCState.Patroling] = false;
@@ -192,9 +209,13 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservabl
 
     public void TakeDamage(int damage)
     {
-        if (Health <= 0) return;
         Health -= damage;
-        if (Health <= 0) Die();
+
+        if (Health <= 0)
+        {
+            Die();
+           // _photonView.RPC("RemoteDie", RpcTarget.Others);
+        }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -202,10 +223,17 @@ public class EnemyNPCView : NPCViewBase, IDamagable,IPlayerTarget, IPunObservabl
         if (stream.IsWriting)
         {
             stream.SendNext(Health);
+            stream.SendNext(_target!=null? _target.Transform.GetComponent<PhotonView>().ViewID :-1);
         }
         else
         {
             Health = (float)stream.ReceiveNext();
+            if (Health <= 0)
+            {
+                if(!_states[NPCState.Dying])Die();
+            }
+            int viewId = (int)stream.ReceiveNext();
+            if(viewId!=-1) _target = PhotonView.Find(viewId).GetComponent<IDamagable>();
         }
     }
 }

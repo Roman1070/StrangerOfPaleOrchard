@@ -1,13 +1,11 @@
-using DG.Tweening;
-using System.Collections.Generic;
+using ExitGames.Client.Photon;
+using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
-using Photon.Pun;
-using Photon.Realtime;
-using ExitGames.Client.Photon;
-using System.Linq;
 
 public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservable
 {
@@ -36,6 +34,8 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
     private EnemyNPCConfig _config;
     [SerializeField]
     private PhotonView _photonView;
+    [SerializeField]
+    private int _level;
 
     private Vector3 _startPoint;
     private NPCAttackData _currentAttack;
@@ -43,12 +43,15 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
     private IDamagable _target;
     private Coroutine _attackRoutine;
     [SerializeField]
-    private float health;
+    private float _health;
+
+    public EnemyNPCConfig Config => _config;
+    public int Level =>_level;
 
     private float DistanceToTarget => Vector3.Distance(transform.position, _target.Transform.position);
 
-    [property: SerializeField]
-    public float Health { get => health; private set => health = value; }
+    public float Health { get => _health; private set => _health = value; }
+    private int Damage => _config.LevelData[_level - 1].Damage;
 
     public Transform Transform => transform;
 
@@ -57,7 +60,7 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
 
     private void Start()
     {
-        Health = _config.MaxHealth;
+        Health = _config.LevelData[_level - 1].MaxHealth;
         _updateProvider.Updates.Add(LocalUpdate);
         _startPoint = transform.position;
         _destinationPoint = GetRandomDestinationPoint();
@@ -107,7 +110,7 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
         }
         else
         {
-            if(_target!=null) UpdateTarget(null);
+            if (_target != null) UpdateTarget(null);
         }
 
         if (_target != null)
@@ -206,7 +209,7 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
 
     private void Die()
     {
-        _animator.SetTrigger("exit combat");
+        _animator.SetTrigger(StringConst.ExitCombat);
         _animator.SetTrigger("dying");
         _states[NPCState.Dying] = true;
         _states[NPCState.Attacking] = false;
@@ -217,6 +220,10 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
         _animator.SetLayerWeight(_animator.GetLayerIndex("CombatLayer"), 0);
         GetComponent<Collider>().enabled = false;
         enabled = false;
+
+        RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+        SendOptions sendOptions = new SendOptions() { DeliveryMode = DeliveryMode.Reliable };
+        PhotonNetwork.RaiseEvent((int)PhotonEventsCodes.OnEnemyDied, _photonView.ViewID, raiseEventOptions, sendOptions);
     }
 
 
@@ -238,12 +245,12 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-       /*if (stream.IsWriting)
-        {
-            stream.SendNext();
-        }
-        else
-        {
-        }*/
+        /*if (stream.IsWriting)
+         {
+             stream.SendNext();
+         }
+         else
+         {
+         }*/
     }
 }

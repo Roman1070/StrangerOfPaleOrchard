@@ -1498,7 +1498,8 @@ MonoBehaviour:
   _animator: {fileID: 7596249750354637507}
   _config: {fileID: 11400000, guid: 749a50142ad1c784b891cf649af91fe6, type: 2}
   _photonView: {fileID: 3866974036353890232}
-  health: 0
+  _level: 1
+  _health: 0
 --- !u!195 &7596249750354637565
 NavMeshAgent:
   m_ObjectHideFlags: 0

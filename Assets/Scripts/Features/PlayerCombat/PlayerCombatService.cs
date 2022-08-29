@@ -6,8 +6,9 @@ using System.Collections;
 using System.Linq;
 using UnityEngine;
 using DG.Tweening;
+using System.Collections.Generic;
 
-public class PlayerCombatService : LoadableService
+public class PlayerCombatService : LoadableService, IOnEventCallback
 {
     private UpdateProvider _updateProvider;
     private Camera _camera;
@@ -22,6 +23,8 @@ public class PlayerCombatService : LoadableService
     private InventoryService _inventory;
     private AttackType _attackType;
     private Coroutine _attackRoutine;
+    private List<int> _recentTargetsPhotonIds = new List<int>();
+    private int _targetPhotonIndex => _target.Transform.GetComponent<PhotonView>().ViewID;
 
     private float DistanceToTarget => Vector3.Distance(_player.transform.position, _target.Transform.position);
 
@@ -33,6 +36,7 @@ public class PlayerCombatService : LoadableService
         _config = config;
         _executor = executor;
         _animator = _player.Model.GetComponent<Animator>();
+        PhotonNetwork.AddCallbackTarget(this);
     }
 
     private void Update()
@@ -75,7 +79,9 @@ public class PlayerCombatService : LoadableService
         _currentAttack = _config.GetRandomAttack("", _attackType);
         _animator.SetLayerWeightSmooth(_executor,PlayerCombatConfig.LayersMappings[_attackType],true,4);
         _animator.SetTrigger(_currentAttack.Id);
+
         _target.TakeDamage(10);
+        if (!_recentTargetsPhotonIds.Contains(_targetPhotonIndex)) _recentTargetsPhotonIds.Add(_targetPhotonIndex);
 
         while (_target != null && DistanceToTarget <= _config.AttackRange &&_target.IsAlive)
         {
@@ -112,6 +118,7 @@ public class PlayerCombatService : LoadableService
             }
         }
     }
+
     public override void OnServicesLoaded(params LoadableService[] services)
     {
         _states = services.FirstOrDefault(s => s is PlayerStatesService) as PlayerStatesService;
@@ -120,5 +127,23 @@ public class PlayerCombatService : LoadableService
 
         _player.ThrowDependencies(_signalBus, _dataService.DynamicData);
         _updateProvider.Updates.Add(Update);
+    }
+
+    public void OnEvent(EventData photonEvent)
+    {
+        switch (photonEvent.Code)
+        {
+            case (int)PhotonEventsCodes.OnEnemyDied:
+                int killedEnemyId = (int)photonEvent.CustomData;
+                if (_recentTargetsPhotonIds.Contains(killedEnemyId))
+                {
+                    EnemyNPCView defeatedEnemy = PhotonView.Find(killedEnemyId).GetComponent<EnemyNPCView>();
+                    int level = defeatedEnemy.Level;
+                    int exp = defeatedEnemy.Config.LevelData[level - 1].ExpOnKill;
+                    _signalBus.FireSignal(new OnExperienceChangedSignal(exp));
+                    _recentTargetsPhotonIds.Remove(killedEnemyId);
+                }
+                break;
+        }
     }
 }

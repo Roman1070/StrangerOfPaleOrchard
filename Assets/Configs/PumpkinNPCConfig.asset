@@ -18,7 +18,6 @@ MonoBehaviour:
   ChaseSpeed: 3
   ChaseDistance: 18
   AttackRange: 1
-  MaxHealth: 100
   Attacks:
   - Id: pumpkin attack 1
     Duration: 1
@@ -26,3 +25,29 @@ MonoBehaviour:
     Duration: 1
   - Id: pumpkin attack 3
     Duration: 1
+  LevelData:
+  - Level: 1
+    MaxHealth: 100
+    Damage: 5
+    ExpOnKill: 30
+    RewardsOnKill: []
+  - Level: 2
+    MaxHealth: 150
+    Damage: 7
+    ExpOnKill: 60
+    RewardsOnKill: []
+  - Level: 3
+    MaxHealth: 170
+    Damage: 10
+    ExpOnKill: 100
+    RewardsOnKill: []
+  - Level: 4
+    MaxHealth: 220
+    Damage: 12
+    ExpOnKill: 150
+    RewardsOnKill: []
+  - Level: 5
+    MaxHealth: 260
+    Damage: 15
+    ExpOnKill: 180
+    RewardsOnKill: []

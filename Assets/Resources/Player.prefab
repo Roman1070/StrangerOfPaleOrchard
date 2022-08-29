@@ -51,7 +51,7 @@ GameObject:
   - component: {fileID: 3099874770490587427}
   - component: {fileID: 684478613}
   - component: {fileID: 2271864118881360616}
-  - component: {fileID: 8210251300837505247}
+  - component: {fileID: 2292738662946905872}
   - component: {fileID: 7572196703223466160}
   - component: {fileID: 3765900584913390893}
   - component: {fileID: 7592170532105133530}
@@ -97,7 +97,7 @@ MonoBehaviour:
   HandAnchor: {fileID: 3756727896613828499}
   WeaponsHolder: {fileID: 1803861602596607005}
   MoveAnim: {fileID: 684478613}
-  Photon: {fileID: 8210251300837505247}
+  Photon: {fileID: 2292738662946905872}
 --- !u!143 &3099874770490587427
 CharacterController:
   m_ObjectHideFlags: 0
@@ -179,7 +179,7 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &8210251300837505247
+--- !u!114 &2292738662946905872
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -188,13 +188,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 9020809407807743868}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Script: {fileID: 11500000, guid: 82b614347d77da542b9a205bba934c75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ObservedComponentsFoldoutOpen: 1
   Group: 0
   prefixField: -1
-  Synchronization: 1
+  Synchronization: 3
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
@@ -202,6 +202,11 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+  _localData:
+    Id: 
+    Nickname: 
+    Experience: 0
+    Level: 0
 --- !u!114 &7572196703223466160
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -232,7 +237,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _player: {fileID: 1639848298521068737}
   _agent: {fileID: 7592170532105133530}
-  _photon: {fileID: 8210251300837505247}
   _animator: {fileID: 3756727896327743705}
   _attackRange: 2
 --- !u!195 &7592170532105133530

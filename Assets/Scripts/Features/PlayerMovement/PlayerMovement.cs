@@ -9,8 +9,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField]
     private NavMeshAgent _agent;
     [SerializeField]
-    private PhotonView _photon;
-    [SerializeField]
     private Animator _animator;
     [SerializeField]
     private float _attackRange;
@@ -30,7 +28,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void LocalUpdate()
     {
-        if (!_photon.IsMine) return;
+        if (!_player.Photon.IsMine) return;
 
         CheckInput();
         Move();
@@ -55,12 +53,12 @@ public class PlayerMovement : MonoBehaviour
         if (_agent.velocity.magnitude >= 0.8f)
         {
             _animator.SetFloat("Speed", 1, 0.15f, Time.deltaTime);
-            _photon.RPC("SendRemoteMovementSpeed", RpcTarget.Others, 1);
+            _player.Photon.RPC("SendRemoteMovementSpeed", RpcTarget.Others, 1);
         }
         else
         {
             _animator.SetFloat("Speed", 0, 0.15f, Time.deltaTime);
-            _photon.RPC("SendRemoteMovementSpeed", RpcTarget.Others, 0);
+            _player.Photon.RPC("SendRemoteMovementSpeed", RpcTarget.Others, 0);
         }
     }
 

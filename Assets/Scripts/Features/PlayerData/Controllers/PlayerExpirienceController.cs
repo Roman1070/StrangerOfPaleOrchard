@@ -1,9 +1,12 @@
 ﻿using DG.Tweening;
+using ExitGames.Client.Photon;
+using Photon.Pun;
+using Photon.Realtime;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerExpirienceController : PlayerDataControllerBase
+public class PlayerExpirienceController : PlayerDataControllerBase, IOnEventCallback
 {
     public int Expirience { get; private set; }
     public int Level { get; private set; }
@@ -25,8 +28,8 @@ public class PlayerExpirienceController : PlayerDataControllerBase
             Level = 1;
         }
 
-        signalBus.Subscribe<OnExperienceChangedSignal>(OnExpChanged,this);
-        DOVirtual.DelayedCall(0.1f, () => { signalBus.FireSignal(new UpdatePlayerUiWidgetSignal(NormalizedExp, Level, false)); } );
+        signalBus.Subscribe<OnExperienceChangedSignal>(OnExpChanged, this);
+        DOVirtual.DelayedCall(0.1f, () => { signalBus.FireSignal(new UpdatePlayerUiWidgetSignal(NormalizedExp, Level, false)); });
     }
 
     private void OnExpChanged(OnExperienceChangedSignal signal)
@@ -53,6 +56,11 @@ public class PlayerExpirienceController : PlayerDataControllerBase
             }
         }
         _signalBus.FireSignal(new QueueUpdatePlayerWidgetSignals(queue));
+    }
+
+    public void OnEvent(EventData photonEvent)
+    {
+
     }
 }
 

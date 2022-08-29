@@ -40,7 +40,7 @@ public class PlayerView : MonoBehaviour, IDamagable
     private void SendRemoteCombatTrigger(string id)
     {
         var animator = Model.GetComponent<Animator>();
-        animator.SetLayerWeight(4, id=="ExitCombat"? 0 : 1);
+        animator.SetLayerWeight(4, id == StringConst.ExitCombat ? 0 : 1);
         animator.SetTrigger(id);
     }
     [PunRPC]

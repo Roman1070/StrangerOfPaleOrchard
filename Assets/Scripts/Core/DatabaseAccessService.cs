@@ -31,7 +31,7 @@ public class DatabaseAccessService : MonoBehaviour
     {
         var filter = Builders<BsonDocument>.Filter.Eq("Id", data.Id);
         var update = Builders<BsonDocument>.Update.Set("Experience", data.Experience);
-        _collection.UpdateOne(filter, update);
+        _collection.UpdateOneAsync(filter, update);
     }
 
     public async Task<List<UserDataPack>> GetDataFromDB()

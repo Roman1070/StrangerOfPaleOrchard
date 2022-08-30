@@ -17,6 +17,9 @@ public class PlayerView : MonoBehaviour, IDamagable
     private PlayerDynamicData _dynamicData;
     public Transform Transform => transform;
 
+    [SerializeField]
+    private UserDataPack data;
+
     public bool IsAlive => _dynamicData.Health > 0;
 
     public int Id => 0;
@@ -35,6 +38,11 @@ public class PlayerView : MonoBehaviour, IDamagable
         _signalBus.FireSignal(new ChangePlayersHealthSignal(-damage));
     }
 
+    [PunRPC]
+    private void UpdateExpRemote(int value)
+    {
+        data.Experience = value;
+    }
 
     [PunRPC]
     private void SendRemoteCombatTrigger(string id)

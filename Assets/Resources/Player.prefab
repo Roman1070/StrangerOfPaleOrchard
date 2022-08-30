@@ -98,6 +98,11 @@ MonoBehaviour:
   WeaponsHolder: {fileID: 1803861602596607005}
   MoveAnim: {fileID: 684478613}
   Photon: {fileID: 3174152152012999622}
+  data:
+    Id: 
+    Nickname: 
+    Experience: 0
+    Level: 0
 --- !u!143 &3099874770490587427
 CharacterController:
   m_ObjectHideFlags: 0

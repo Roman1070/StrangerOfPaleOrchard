@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Zenject;
@@ -11,6 +12,20 @@ public class DatabaseAccessService : MonoBehaviour
 {
     [Inject]
     private SignalBus _signalBus;
+
+    private PlayerView _player;
+
+    private PlayerView Player
+    {
+        get
+        {
+            if (_player == null)
+            {
+                _player = FindObjectsOfType<PlayerView>().First(p => p.Photon.IsMine);
+            }
+            return _player;
+        }
+    }
 
     private static DatabaseAccessService _instance;
     public static DatabaseAccessService Instance
@@ -61,6 +76,7 @@ public class DatabaseAccessService : MonoBehaviour
         var filter = Builders<BsonDocument>.Filter.Eq("Id", data.Id);
         var update = Builders<BsonDocument>.Update.Set("Experience", data.Experience);
         _collection.UpdateOneAsync(filter, update);
+        Player.Photon.RPC("UpdateExpRemote",Photon.Pun.RpcTarget.Others,data.Experience);
     }
 
     public async Task<List<UserDataPack>> GetDataFromDB()

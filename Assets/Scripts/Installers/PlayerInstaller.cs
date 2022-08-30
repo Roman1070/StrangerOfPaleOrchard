@@ -16,7 +16,5 @@ public class PlayerInstaller : MonoInstaller
             Container.Bind<PlayerView>().FromInstance(player.GetComponent<PlayerView>()).AsSingle().NonLazy();
             Container.QueueForInject(player);
         }
-        
-
     }
 }

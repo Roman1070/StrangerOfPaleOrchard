@@ -5,20 +5,49 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
+using Zenject;
 
 public class DatabaseAccessService : MonoBehaviour
 {
+    [Inject]
+    private SignalBus _signalBus;
+
+    private static DatabaseAccessService _instance;
+    public static DatabaseAccessService Instance
+    {
+        get
+        {
+            if (_instance == null)
+                _instance = FindObjectOfType<DatabaseAccessService>();
+            return _instance;
+        }
+    }
+
     private MongoClient _mongoClient = new MongoClient("mongodb+srv://DerTraeumer:Isqeqbepiscoke1070@cluster0.8i2lysa.mongodb.net/?retryWrites=true&w=majority");
     IMongoDatabase _database;
     IMongoCollection<BsonDocument> _collection;
+    public UserDataPack LocalData { get; private set; }
 
 
     private void OnEnable()
     {
-        DontDestroyOnLoad(gameObject);
         _database = _mongoClient.GetDatabase("SPODB");
 
         _collection = _database.GetCollection<BsonDocument>("UsersData");
+
+        _signalBus.Subscribe<OnExperienceChangedSignal>(OnExpChanged, this);
+    }
+
+    private void OnExpChanged(OnExperienceChangedSignal obj)
+    {
+        LocalData.Experience += obj.Value;
+        UpdateExperience(LocalData);
+    }
+
+    public void Init(UserDataPack data)
+    {
+        LocalData = data;
+        SaveNewData(data);
     }
 
     public async void SaveNewData(UserDataPack data)

@@ -53,6 +53,9 @@ public class PlayerView : MonoBehaviour, IDamagable
     private void Start()
     {
         if (!Photon.IsMine) return;
+
+        UserDataPack localData = new UserDataPack() { Id = Random.Range(0, 9999).ToString(), Nickname = $"player {Random.Range(0, 9999)}", Experience = 0, Level = 1 };
+        DatabaseAccessService.Instance.Init(localData);
         transform.position = new Vector3(25.3f, 5, 68.3f);
         GetComponent<NavMeshAgent>().enabled = true;
     }

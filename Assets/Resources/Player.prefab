@@ -55,6 +55,7 @@ GameObject:
   - component: {fileID: 3765900584913390893}
   - component: {fileID: 7592170532105133530}
   - component: {fileID: 3174152152012999622}
+  - component: {fileID: 6741228238964254898}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -98,11 +99,7 @@ MonoBehaviour:
   WeaponsHolder: {fileID: 1803861602596607005}
   MoveAnim: {fileID: 684478613}
   Photon: {fileID: 3174152152012999622}
-  data:
-    Id: 
-    Nickname: 
-    Experience: 0
-    Level: 0
+  OtherPlayersContainer: {fileID: 6741228238964254898}
 --- !u!143 &3099874770490587427
 CharacterController:
   m_ObjectHideFlags: 0
@@ -261,6 +258,18 @@ MonoBehaviour:
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &6741228238964254898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9020809407807743868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc1da15ba8915964f9e66fd43e4ebdc2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &331383362
 PrefabInstance:
   m_ObjectHideFlags: 0

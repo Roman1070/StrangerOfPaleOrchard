@@ -1,4 +1,5 @@
 using Photon.Pun;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -12,17 +13,17 @@ public class PlayerView : MonoBehaviour, IDamagable
     public Transform WeaponsHolder;
     public CharacterControllerMoveAnimation MoveAnim;
     public PhotonView Photon;
+    public OtherPlayersContainer OtherPlayersContainer;
+    public Transform Transform => transform;
+    public UserDataPack Data { get; private set; }
+    public bool IsAlive => _dynamicData.Health > 0;
+
+    public int DamagableId => 0;
+
 
     private SignalBus _signalBus;
     private PlayerDynamicData _dynamicData;
-    public Transform Transform => transform;
 
-    [SerializeField]
-    private UserDataPack data;
-
-    public bool IsAlive => _dynamicData.Health > 0;
-
-    public int Id => 0;
 
     public void ThrowDependencies(SignalBus signalBus, PlayerDynamicData dynamicData)
     {
@@ -41,7 +42,7 @@ public class PlayerView : MonoBehaviour, IDamagable
     [PunRPC]
     private void UpdateExpRemote(int value)
     {
-        data.Experience = value;
+        Data.Experience = value;
     }
 
     [PunRPC]
@@ -60,10 +61,15 @@ public class PlayerView : MonoBehaviour, IDamagable
 
     private void Start()
     {
-        if (!Photon.IsMine) return;
+        if (!Photon.IsMine)
+        {
+            FindObjectsOfType<PlayerView>().First(p => p.Photon.IsMine).OtherPlayersContainer.Insert(this);
+            return; 
+        }
 
         UserDataPack localData = new UserDataPack() { Id = Random.Range(0, 9999).ToString(), Nickname = $"player {Random.Range(0, 9999)}", Experience = 0, Level = 1 };
         DatabaseAccessService.Instance.Init(localData);
+        Data = localData;
         transform.position = new Vector3(25.3f, 5, 68.3f);
         GetComponent<NavMeshAgent>().enabled = true;
     }

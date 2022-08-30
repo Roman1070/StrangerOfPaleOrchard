@@ -14,7 +14,7 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
     protected override NPCType NPCType => NPCType.Enemy;
 
     public Transform Target => transform;
-    public int Id => 1;
+    public int DamagableId => 1;
 
     private Dictionary<NPCState, bool> _states = new Dictionary<NPCState, bool>()
     {

@@ -38,3 +38,10 @@ public class PlayerExperienceUiController : GameUiControllerBase
         _signalBus.FireSignal(_Queue.Dequeue());
     }
 }
+
+public class OtherPlayersExperienceDispayController : GameUiControllerBase
+{
+    public OtherPlayersExperienceDispayController(SignalBus signalBus, GameCanvas gameCanvas) : base(signalBus, gameCanvas)
+    {
+    }
+}

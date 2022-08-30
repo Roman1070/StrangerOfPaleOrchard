@@ -61,17 +61,27 @@ public class PlayerView : MonoBehaviour, IDamagable
 
     private void Start()
     {
+        UserDataPack localData = new UserDataPack() { Id = Photon.ViewID.ToString(), Nickname = $"player {Photon.ViewID}", Experience = 0, Level = 1 };
+        Data = localData;
+
         if (!Photon.IsMine)
         {
             FindObjectsOfType<PlayerView>().First(p => p.Photon.IsMine).OtherPlayersContainer.Insert(this);
-            return; 
+            Invoke("GetData", 3);
+            return;
         }
 
-        UserDataPack localData = new UserDataPack() { Id = Random.Range(0, 9999).ToString(), Nickname = $"player {Random.Range(0, 9999)}", Experience = 0, Level = 1 };
         DatabaseAccessService.Instance.Init(localData);
-        Data = localData;
+
         transform.position = new Vector3(25.3f, 5, 68.3f);
         GetComponent<NavMeshAgent>().enabled = true;
+    }
+
+    private async void GetData()
+    {
+        var datas = DatabaseAccessService.Instance.GetDataFromDB();
+        var result = await datas;
+        Data = result.First(d => d.Id == Photon.ViewID.ToString());
     }
 
 }

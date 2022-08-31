@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 public class PlayerExperienceUiController : GameUiControllerBase
 {
@@ -36,12 +37,5 @@ public class PlayerExperienceUiController : GameUiControllerBase
     {
         _Queue = signal.Queue;
         _signalBus.FireSignal(_Queue.Dequeue());
-    }
-}
-
-public class OtherPlayersExperienceDispayController : GameUiControllerBase
-{
-    public OtherPlayersExperienceDispayController(SignalBus signalBus, GameCanvas gameCanvas) : base(signalBus, gameCanvas)
-    {
     }
 }

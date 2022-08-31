@@ -24,39 +24,25 @@ public class PlayerArmedStateController : PlayerGearControllerBase
         _weaponHolder = player.WeaponsHolder;
         _animator = _player.Model.GetComponent<Animator>();
 
-        //signalBus.Subscribe<OnInputDataRecievedSignal>(OnInput, this);
-        //signalBus.Subscribe<DrawWeaponSignal>(DrawWeapon, this);
+        signalBus.Subscribe<DrawWeaponSignal>(DrawWeapon, this);
+        signalBus.Subscribe<ToggleWeaponDrawnStatusSignal>(ToggleArmedStatus, this);
 
         _weaponHolder.SetParent(_spineAnchor);
         _weaponHolder.transform.localPosition = RemovedPosition;
         _weaponHolder.transform.localEulerAngles = RemovedRotation;
     }
 
-    /*private void DrawWeapon(DrawWeaponSignal obj)
+    private void DrawWeapon(DrawWeaponSignal signal)
     {
-        if (obj.Draw)_player.StartCoroutine(DrawWeapon());
+        if (signal.Draw)_player.StartCoroutine(DrawWeapon());
         else _player.StartCoroutine(RemoveWeapon());
-    }*/
+    }
 
-   /* private void OnInput(OnInputDataRecievedSignal obj)
-    {
-        if (obj.Data.ToggleArmedStatus) 
-        {
-            bool toggleAvailable = !(_statesService.States[PlayerState.Rolling]
-                || _statesService.States[PlayerState.Interacting] || _statesService.States[PlayerState.Attacking]);
-
-            if(toggleAvailable && !_statesService.States[PlayerState.DrawingWeapon])
-                ToggleArmedStatus();
-        }
-    }*/
-
-    private void ToggleArmedStatus()
+    private void ToggleArmedStatus(ToggleWeaponDrawnStatusSignal signal)
     {
         if (_statesService.States[PlayerState.IsArmed]) _player.StartCoroutine(RemoveWeapon());
-        else 
-        { 
-            _player.StartCoroutine(DrawWeapon());
-        }
+        else _player.StartCoroutine(DrawWeapon());
+        
     }
 
     private IEnumerator DrawWeapon()
@@ -64,6 +50,7 @@ public class PlayerArmedStateController : PlayerGearControllerBase
         yield return new WaitUntil(() => !_statesService.States[PlayerState.DrawingWeapon] && !_statesService.States[PlayerState.Attacking]);
 
         _animator.SetTrigger("DrawWeapon");
+        _player.Photon.RPC("SetDrawingWeaponRemoteTrigger", Photon.Pun.RpcTarget.Others, true);
         _signalBus.FireSignal(new SetPlayerStateSignal(PlayerState.DrawingWeapon, true));
 
         DOVirtual.DelayedCall(_animationDuration * 0.35f, () =>
@@ -86,6 +73,7 @@ public class PlayerArmedStateController : PlayerGearControllerBase
         yield return new WaitUntil(() => !_statesService.States[PlayerState.DrawingWeapon] && !_statesService.States[PlayerState.Attacking]);
 
         _animator.SetTrigger("RemoveWeapon");
+        _player.Photon.RPC("SetDrawingWeaponRemoteTrigger", Photon.Pun.RpcTarget.Others, false);
         _signalBus.FireSignal(new SetPlayerStateSignal(PlayerState.DrawingWeapon, true));
         DOVirtual.DelayedCall(_animationDuration+0.2f, () =>
         {

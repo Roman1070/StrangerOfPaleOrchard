@@ -60,8 +60,8 @@ public class PlayerCombatService : LoadableService, IOnEventCallback
         _target = null;
         _executor.StopCoroutine(_attackRoutine);
         _states.States[PlayerState.Attacking] = false;
-        _player.Photon.RPC("SendRemoteCombatTrigger", RpcTarget.Others, "ExitCombat");
-        _animator.SetTrigger("ExitCombat");
+        _player.Photon.RPC("SendRemoteCombatTrigger", RpcTarget.Others, StringConst.ExitCombat);
+        _animator.SetTrigger(StringConst.ExitCombat);
         _animator.SetLayerWeightSmooth(_executor, PlayerCombatConfig.LayersMappings[_attackType], false, 4);
     }
 

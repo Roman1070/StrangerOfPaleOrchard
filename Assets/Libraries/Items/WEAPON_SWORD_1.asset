@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: WEAPON_SWORD_1
   m_EditorClassIdentifier: 
   Id: WEAPON_SWORD_1
+  NumericId: 1
   NameDef:
     Name: Light sword
   GroupDef:

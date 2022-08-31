@@ -1,4 +1,8 @@
+using DG.Tweening;
 using Photon.Pun;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
@@ -16,58 +20,73 @@ public class PlayerView : MonoBehaviour, IDamagable
     public OtherPlayersContainer OtherPlayersContainer;
     public Transform Transform => transform;
     public UserDataPack Data { get; private set; }
-    public bool IsAlive => _dynamicData.Health > 0;
+    public bool IsAlive => DynamicData.Health > 0;
 
     public int DamagableId => 0;
 
 
-    private SignalBus _signalBus;
-    private PlayerDynamicData _dynamicData;
+    public SignalBus SignalBus { get; private set; }
+    public PlayerDynamicData DynamicData { get; private set; }
 
+    private Animator _animator;
+    private Animator Animator
+    {
+        get
+        {
+            if (_animator == null)
+                _animator = Model.GetComponent<Animator>();
+            return _animator;
+        }
+    }
 
     public void ThrowDependencies(SignalBus signalBus, PlayerDynamicData dynamicData)
     {
         if (!Photon.IsMine) return;
 
-        _signalBus = signalBus;
-        _dynamicData = dynamicData;
+        SignalBus = signalBus;
+        DynamicData = dynamicData;
     }
 
     public void TakeDamage(int damage)
     {
         if (!Photon.IsMine) return;
-        _signalBus.FireSignal(new ChangePlayersHealthSignal(-damage));
+        SignalBus.FireSignal(new ChangePlayersHealthSignal(-damage));
     }
 
     [PunRPC]
     private void UpdateExpRemote(int value)
     {
         Data.Experience = value;
+        Debug.LogError($"id = {Photon.ViewID}  exp = {Data.Experience}");
     }
-
+    [PunRPC]
+    private void SetDrawingWeaponRemoteTrigger(bool draw)
+    {
+        Animator.SetTrigger(draw? "DrawWeapon" : "RemoveWeapon");
+    }
     [PunRPC]
     private void SendRemoteCombatTrigger(string id)
     {
-        var animator = Model.GetComponent<Animator>();
-        animator.SetLayerWeight(4, id == StringConst.ExitCombat ? 0 : 1);
-        animator.SetTrigger(id);
+        Animator.SetLayerWeight(4, id == StringConst.ExitCombat ? 0 : 1);
+        Animator.SetTrigger(id);
     }
     [PunRPC]
     private void SendRemoteMovementSpeed(int speed)
     {
-        var animator = Model.GetComponent<Animator>();
-        animator.SetFloat("Speed", speed);
+        Animator.SetFloat("Speed", speed);
     }
 
     private void Start()
     {
         UserDataPack localData = new UserDataPack() { Id = Photon.ViewID.ToString(), Nickname = $"player {Photon.ViewID}", Experience = 0, Level = 1 };
         Data = localData;
-
         if (!Photon.IsMine)
         {
-            FindObjectsOfType<PlayerView>().First(p => p.Photon.IsMine).OtherPlayersContainer.Insert(this);
-            Invoke("GetData", 3);
+            var minePlayer = FindObjectsOfType<PlayerView>().First(p => p.Photon.IsMine);
+            minePlayer.OtherPlayersContainer.Insert(this);
+            SignalBus = minePlayer.SignalBus;
+            DynamicData = new PlayerDynamicData() { Health = 100 };
+            DOVirtual.DelayedCall(2, () => GetData());
             return;
         }
 
@@ -83,5 +102,4 @@ public class PlayerView : MonoBehaviour, IDamagable
         var result = await datas;
         Data = result.First(d => d.Id == Photon.ViewID.ToString());
     }
-
 }

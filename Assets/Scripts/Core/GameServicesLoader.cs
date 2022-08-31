@@ -38,21 +38,16 @@ public class GameServicesLoader : MonoBehaviour
     #endregion
     private List<LoadableService> _services;
 
-    [SerializeField]
-    private NavMeshSurface _surface;
-
     private void Start()
     {
         InitServices();
-        _surface.transform.position += Vector3.up * 2;
-        DOVirtual.DelayedCall(0.1f, () => _surface.transform.position -= Vector3.up * 2);
     }
 
     private void InitServices()
     {
         _services = new List<LoadableService>()
         {
-            new GameUiService(_signalBus, _gameCanvas, _movementConfig),
+            new GameUiService(_signalBus, _gameCanvas, _movementConfig,_playerView.OtherPlayersContainer,_updateProvider,_mainCameraAnchor.Camera,_levelsConfig),
             //new DevConsoleService(_signalBus, _gameCanvas),
             new InventoryService(_signalBus, _itemsMap),
             new PlayerCombatService(_signalBus,_updateProvider,_mainCameraAnchor.Camera,_playerView,_combatConfig,_coroutineExecutor),

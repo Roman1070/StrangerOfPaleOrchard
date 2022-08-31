@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: WEAPON_SWORD_2
   m_EditorClassIdentifier: 
   Id: WEAPON_SWORD_2
+  NumericId: 2
   NameDef:
     Name: Common sword
   GroupDef:

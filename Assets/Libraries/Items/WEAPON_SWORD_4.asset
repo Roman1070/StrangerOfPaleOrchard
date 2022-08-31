@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: WEAPON_SWORD_4
   m_EditorClassIdentifier: 
   Id: WEAPON_SWORD_4
+  NumericId: 4
   NameDef:
     Name: Broadsword
   GroupDef:

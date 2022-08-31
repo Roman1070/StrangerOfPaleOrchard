@@ -7,6 +7,7 @@ using UnityEngine;
 public class Item : ScriptableObject
 {
     public string Id;
+    public int NumericId;
     public ItemNameDef NameDef;
     public ItemGroupDef GroupDef;
     public ItemIconDef IconDef;

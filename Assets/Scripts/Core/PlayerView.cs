@@ -54,10 +54,19 @@ public class PlayerView : MonoBehaviour, IDamagable
     }
 
     [PunRPC]
+    private void OnEquipementChangedRemote(int itemId, int itemLevel)
+    {
+        StartCoroutine(OnEquipementChangedRemoteCoroutine(itemId, itemLevel));
+    }
+    private IEnumerator OnEquipementChangedRemoteCoroutine(int itemId, int itemLevel)
+    {
+        yield return new WaitUntil(() => SignalBus != null);
+        SignalBus.FireSignal(new OnEquippedItemChangedSignal(itemId, itemLevel, 0, this));
+    }
+    [PunRPC]
     private void UpdateExpRemote(int value)
     {
         Data.Experience = value;
-        Debug.LogError($"id = {Photon.ViewID}  exp = {Data.Experience}");
     }
     [PunRPC]
     private void SetDrawingWeaponRemoteTrigger(bool draw)
@@ -94,6 +103,12 @@ public class PlayerView : MonoBehaviour, IDamagable
 
         transform.position = new Vector3(25.3f, 5, 68.3f);
         GetComponent<NavMeshAgent>().enabled = true;
+    }
+
+    private void OnDisable()
+    {
+        var minePlayer = FindObjectsOfType<PlayerView>().First(p => p.Photon.IsMine);
+        minePlayer.OtherPlayersContainer.Remove(this);
     }
 
     private async void GetData()

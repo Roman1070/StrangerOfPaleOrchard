@@ -1,5 +1,6 @@
 ﻿using DG.Tweening;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
@@ -53,13 +54,16 @@ public class GameServicesLoader : MonoBehaviour
             new PlayerCombatService(_signalBus,_updateProvider,_mainCameraAnchor.Camera,_playerView,_combatConfig,_coroutineExecutor),
             new InventoryUiService(_signalBus, _gameCanvas),
             new PlayerGearService(_signalBus, _playerView, _weaponOffsetConfig),
-            new PlayerModelUpdateService(_signalBus, _renderSpace, _playerView, _weaponOffsetConfig),
+            new PlayerModelUpdateService(_signalBus, _renderSpace, _playerView, _weaponOffsetConfig,_playerView.OtherPlayersContainer),
             new PlayerDataService(_signalBus, _levelsConfig),
             new PlayerStatesService(_signalBus),
             new VFXService(_signalBus,_playerView)
         };
 
+        _playerView.ThrowDependencies(_signalBus, (_services.First(s => s is PlayerDataService) as PlayerDataService).DynamicData);
+
         foreach (var service in _services)
             service.OnServicesLoaded(_services.ToArray());
+
     }
 }

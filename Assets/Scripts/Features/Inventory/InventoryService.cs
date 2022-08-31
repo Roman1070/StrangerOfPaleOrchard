@@ -83,6 +83,8 @@ public class InventoryService : LoadableService
 
     private void OnEquipementChanged(OnEquippedItemChangedSignal obj)
     {
+        if (obj.Item == null) return;
+
         if (obj.Slot == ItemSlot.Weapon)
             Inventory.CurrentWeaponType = obj.Item.GroupDef.WeaponType;
     }
@@ -120,6 +122,7 @@ public class InventoryService : LoadableService
     public int GetItemCount(string id) => ItemsCount[id];
 
     public Item GetItem(string id) => ItemsMap.Items.First(_ => _.Id == id).Item;
+    public Item GetItem(int id)=>ItemsMap.Items.First(_ => _.Item.NumericId == id).Item;
 
     public override void OnServicesLoaded(params LoadableService[] services)
     {

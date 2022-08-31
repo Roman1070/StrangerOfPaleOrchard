@@ -10,7 +10,7 @@ public class UpdateProvider : MonoBehaviour
 
     private void Update()
     {
-        foreach (var update in Updates)
+        foreach (var update in Updates.ToArray())
             update?.Invoke();
     }
 }

@@ -17,12 +17,14 @@ public class OtherPlayerWidgetView : View
 
     private PlayerView _target;
     private Camera _camera;
+    private UpdateProvider _updateProvider;
 
     public void Init(Camera camera, UpdateProvider updateProvider, PlayerView target,string name, int level, float normalizedProgress)
     {
         _target = target;
         _camera = camera;
         _name.text = name;
+        _updateProvider = updateProvider;
         _level.text = level.ToString();
         _levelProgress.fillAmount = normalizedProgress;
         _healthBar.fillAmount = 1;
@@ -31,7 +33,12 @@ public class OtherPlayerWidgetView : View
 
     private void LocalUpdate()
     {
-        transform.position = _camera.WorldToScreenPoint(_target.transform.position+Vector3.up*3);
+        if (_target != null) transform.position = _camera.WorldToScreenPoint(_target.transform.position + Vector3.up * 3);
+        else 
+        {
+            _updateProvider.Updates.Remove(LocalUpdate);
+            Destroy(gameObject); 
+        }
     }
 
     public void UpdateHealth(float normalizedHealth) => _healthBar.fillAmount = normalizedHealth;

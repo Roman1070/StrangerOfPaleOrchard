@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class OtherPlayersExperienceDispayController : GameUiControllerBase
@@ -18,6 +20,17 @@ public class OtherPlayersExperienceDispayController : GameUiControllerBase
         _levelsConfig = levelsConfig;
         _updateProvider.Updates.Add(Update);
         _otherPlayers.OnPlayerInserted += OnNewPlayerJoined;
+        _otherPlayers.OnPlayerRemoved += OnPlayerLeft;
+    }
+
+    private void OnPlayerLeft(PlayerView obj)
+    {
+        foreach (var kvp in _anchoredWidgets)
+            if (kvp.Value == obj)
+            {
+                GameObject.Destroy(_anchoredWidgets[kvp.Key]);
+                _anchoredWidgets.Remove(kvp.Key);
+            }
     }
 
     private void OnNewPlayerJoined(PlayerView player)
@@ -29,11 +42,11 @@ public class OtherPlayersExperienceDispayController : GameUiControllerBase
 
     private void Update()
     {
-        foreach (var kvp in _anchoredWidgets)
+        foreach (var widget in _anchoredWidgets.Keys.ToList())
         {
-            kvp.Key.UpdateHealth(kvp.Value.DynamicData.Health);
-            kvp.Key.UpdateLevelProgress(_levelsConfig.GetCurrentLevelNormalizedExp(kvp.Value.Data.Experience));
-            kvp.Key.UpdateLevel(_levelsConfig.GetLevelByExp(kvp.Value.Data.Experience));
+            widget.UpdateHealth(_anchoredWidgets[widget].DynamicData.Health);
+            widget.UpdateLevelProgress(_levelsConfig.GetCurrentLevelNormalizedExp(_anchoredWidgets[widget].Data.Experience));
+            widget.UpdateLevel(_levelsConfig.GetLevelByExp(_anchoredWidgets[widget].Data.Experience));
         }
     }
 }

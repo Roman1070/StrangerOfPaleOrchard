@@ -125,7 +125,6 @@ public class PlayerCombatService : LoadableService, IOnEventCallback
         _dataService = services.FirstOrDefault(s => s is PlayerDataService) as PlayerDataService;
         _inventory = services.FirstOrDefault(s => s is InventoryService) as InventoryService;
 
-        _player.ThrowDependencies(_signalBus, _dataService.DynamicData);
         _updateProvider.Updates.Add(Update);
     }
 

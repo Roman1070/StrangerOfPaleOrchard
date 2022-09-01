@@ -63,6 +63,12 @@ public class PlayerView : MonoBehaviour, IDamagable
         yield return new WaitUntil(() => SignalBus != null);
         SignalBus.FireSignal(new OnEquippedItemChangedSignal(itemId, itemLevel, 0, this));
     }
+
+    [PunRPC]
+    private void DrawWeaponRemote(bool draw)
+    {
+        SignalBus.FireSignal(new DrawWeaponRemoteSignal(draw, this));
+    }
     [PunRPC]
     private void UpdateExpRemote(int value)
     {

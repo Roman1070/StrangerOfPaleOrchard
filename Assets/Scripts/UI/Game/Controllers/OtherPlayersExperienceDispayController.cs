@@ -25,11 +25,11 @@ public class OtherPlayersExperienceDispayController : GameUiControllerBase
 
     private void OnPlayerLeft(PlayerView obj)
     {
-        foreach (var kvp in _anchoredWidgets)
-            if (kvp.Value == obj)
+        foreach (var key in _anchoredWidgets.Keys.ToList())
+            if (_anchoredWidgets[key] == obj)
             {
-                GameObject.Destroy(_anchoredWidgets[kvp.Key]);
-                _anchoredWidgets.Remove(kvp.Key);
+                GameObject.Destroy(_anchoredWidgets[key]);
+                _anchoredWidgets.Remove(key);
             }
     }
 

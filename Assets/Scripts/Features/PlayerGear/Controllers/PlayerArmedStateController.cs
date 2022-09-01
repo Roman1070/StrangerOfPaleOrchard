@@ -25,6 +25,7 @@ public class PlayerArmedStateController : PlayerGearControllerBase
         _animator = _player.Model.GetComponent<Animator>();
 
         signalBus.Subscribe<DrawWeaponSignal>(DrawWeapon, this);
+        signalBus.Subscribe<DrawWeaponRemoteSignal>(DrawWeaponRemote, this);
         signalBus.Subscribe<ToggleWeaponDrawnStatusSignal>(ToggleArmedStatus, this);
 
         _weaponHolder.SetParent(_spineAnchor);
@@ -50,7 +51,7 @@ public class PlayerArmedStateController : PlayerGearControllerBase
         yield return new WaitUntil(() => !_statesService.States[PlayerState.DrawingWeapon] && !_statesService.States[PlayerState.Attacking]);
 
         _animator.SetTrigger("DrawWeapon");
-        _player.Photon.RPC("SetDrawingWeaponRemoteTrigger", Photon.Pun.RpcTarget.Others, true);
+        _player.Photon.RPC("DrawWeaponRemote", Photon.Pun.RpcTarget.Others, true);
         _signalBus.FireSignal(new SetPlayerStateSignal(PlayerState.DrawingWeapon, true));
 
         DOVirtual.DelayedCall(_animationDuration * 0.35f, () =>
@@ -68,12 +69,22 @@ public class PlayerArmedStateController : PlayerGearControllerBase
         }); 
     }
 
+    private void DrawWeaponRemote(DrawWeaponRemoteSignal signal)
+    {
+        float delay = signal.Draw ? _animationDuration * 0.35f : _animationDuration + 0.2f;
+        signal.Player.Model.GetComponent<Animator>().SetBool("IsArmed", signal.Draw);
+        DOVirtual.DelayedCall(delay, () =>
+        {
+            signal.Player.WeaponsHolder.SetParent(signal.Draw ? signal.Player.HandAnchor : signal.Player.SpineAnchor);
+        });
+    }
+
     private IEnumerator RemoveWeapon()
     {
         yield return new WaitUntil(() => !_statesService.States[PlayerState.DrawingWeapon] && !_statesService.States[PlayerState.Attacking]);
 
         _animator.SetTrigger("RemoveWeapon");
-        _player.Photon.RPC("SetDrawingWeaponRemoteTrigger", Photon.Pun.RpcTarget.Others, false);
+        _player.Photon.RPC("DrawWeaponRemote", Photon.Pun.RpcTarget.Others, false);
         _signalBus.FireSignal(new SetPlayerStateSignal(PlayerState.DrawingWeapon, true));
         DOVirtual.DelayedCall(_animationDuration+0.2f, () =>
         {

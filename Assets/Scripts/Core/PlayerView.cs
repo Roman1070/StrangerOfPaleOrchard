@@ -9,13 +9,11 @@ using UnityEngine.AI;
 
 public class PlayerView : MonoBehaviour, IDamagable
 {
-    public CharacterController Controller;
     public Transform Model;
     public Transform GroundChecker;
     public Transform SpineAnchor;
     public Transform HandAnchor;
     public Transform WeaponsHolder;
-    public CharacterControllerMoveAnimation MoveAnim;
     public PhotonView Photon;
     public OtherPlayersContainer OtherPlayersContainer;
     public Transform Transform => transform;

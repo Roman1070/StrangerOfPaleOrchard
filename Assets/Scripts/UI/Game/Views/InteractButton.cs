@@ -4,16 +4,16 @@ using UnityEngine.UI;
 public class InteractButton : View
 {
     [SerializeField] private CanvasGroup _canvasGroup;
-    [SerializeField] private Text _text;
     [SerializeField] private Text _lowerLabel;
+
+    public Button Button;
 
     private void Start()
     {
         SetActive(false);
     }
-    public void SetData(string text, string lowerLabel)
+    public void SetData(string lowerLabel)
     {
-        _text.text = text;
         _lowerLabel.text = lowerLabel;
     }
     public void SetActive(bool val)

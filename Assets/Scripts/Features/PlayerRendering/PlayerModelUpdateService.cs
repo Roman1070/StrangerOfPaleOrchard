@@ -88,8 +88,9 @@ public class PlayerModelUpdateService : LoadableService
             }
             _cachedModels[obj.Player].Add(obj.Item, newModels);
         }
-        if(obj.IsMine) _player.Photon.RPC("OnEquipementChangedRemote" , Photon.Pun.RpcTarget.Others , obj.Item.NumericId, _inventoryService.ItemsLevels[obj.Item.Id]);
         _equippedGear[obj.Player][obj.Slot] = _cachedModels[obj.Player][obj.Item];
+
+        if(obj.IsMine) _player.Photon.RPC("OnEquipementChangedRemote" , Photon.Pun.RpcTarget.Others , obj.Item.NumericId, _inventoryService.ItemsLevels[obj.Item.Id]);
     }
 
     public override void OnServicesLoaded(params LoadableService[] services)

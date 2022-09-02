@@ -39,7 +39,7 @@ public class GameUiService : LoadableService
         _controllers = new List<GameUiControllerBase>()
         {
             new CollectedItemWidgetsController(_signalBus,_gameCanvas, _inventory),
-            new InteractButtonController(_signalBus, _gameCanvas,_statesService),
+            new InteractButtonController(_signalBus, _gameCanvas,_statesService,_camera),
             new PlayerExperienceUiController(_signalBus,_gameCanvas),
             new UiPanelsController(_signalBus, _gameCanvas),
             new OtherPlayersExperienceDispayController(_signalBus,_gameCanvas,_otherPlayers,_updateProvider,_camera,_levelsConfig)

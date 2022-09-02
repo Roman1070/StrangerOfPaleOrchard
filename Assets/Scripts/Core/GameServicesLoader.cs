@@ -57,7 +57,9 @@ public class GameServicesLoader : MonoBehaviour
             new PlayerModelUpdateService(_signalBus, _renderSpace, _playerView, _weaponOffsetConfig,_playerView.OtherPlayersContainer),
             new PlayerDataService(_signalBus, _levelsConfig),
             new PlayerStatesService(_signalBus),
-            new VFXService(_signalBus,_playerView)
+            new VFXService(_signalBus,_playerView),
+            new ItemCollectService(_signalBus,_updateProvider,_playerView),
+            new PlayerMovementService(_signalBus,_playerView,_updateProvider,_mainCameraAnchor.Camera)
         };
 
         _playerView.ThrowDependencies(_signalBus, (_services.First(s => s is PlayerDataService) as PlayerDataService).DynamicData);

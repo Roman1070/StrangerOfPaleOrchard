@@ -6,11 +6,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerExpirienceController : PlayerDataControllerBase, IOnEventCallback
+public class PlayerExperienceController : PlayerDataControllerBase, IOnEventCallback
 {
-    public int Expirience { get; private set; }
+    public int Experience { get; private set; }
     public int Level { get; private set; }
-    private int CurrentLevelExpirience => Expirience - CurrentLevelRequiredExp;
+    private int CurrentLevelExpirience => Experience - CurrentLevelRequiredExp;
     private int CurrentLevelRequiredExp => _levelsConfig.ExpOnLevel[Level - 1];
     private int NextLevelRequiredExp => _levelsConfig.ExpOnLevel[Level];
 
@@ -18,23 +18,31 @@ public class PlayerExpirienceController : PlayerDataControllerBase, IOnEventCall
 
     private PlayerLevelsConfig _levelsConfig;
 
-    public PlayerExpirienceController(SignalBus signalBus, PlayerLevelsConfig levelConfig) : base(signalBus)
+    public PlayerExperienceController(SignalBus signalBus, PlayerLevelsConfig levelConfig) : base(signalBus)
     {
         _levelsConfig = levelConfig;
 
         if (Level == 0)
         {
-            Expirience = 0;
+            Experience = 0;
             Level = 1;
         }
 
         signalBus.Subscribe<OnExperienceChangedSignal>(OnExpChanged, this);
+        signalBus.Subscribe<OnDBDataLoadedSignal>(OnDataloaded, this);
         DOVirtual.DelayedCall(0.1f, () => { signalBus.FireSignal(new UpdatePlayerUiWidgetSignal(NormalizedExp, Level, false)); });
+    }
+
+    private void OnDataloaded(OnDBDataLoadedSignal obj)
+    {
+        Experience = obj.Data.Experience;
+
+        UpdateLevel();
     }
 
     private void OnExpChanged(OnExperienceChangedSignal signal)
     {
-        Expirience += signal.Value;
+        Experience += signal.Value;
 
         UpdateLevel();
     }
@@ -47,7 +55,7 @@ public class PlayerExpirienceController : PlayerDataControllerBase, IOnEventCall
 
         for (int i = Level; i < _levelsConfig.ExpOnLevel.Length;i++)
         {
-            if (Expirience >= _levelsConfig.ExpOnLevel[i])
+            if (Experience >= _levelsConfig.ExpOnLevel[i])
             {
                 Level = i + 1;
                 _signalBus.FireSignal(new OnPlayerLevelIncreasedSignal());

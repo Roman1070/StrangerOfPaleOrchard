@@ -7,6 +7,16 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 
+public class OnDBDataLoadedSignal : ISignal
+{
+    public UserDataPack Data;
+
+    public OnDBDataLoadedSignal(UserDataPack data)
+    {
+        Data = data;
+    }
+}
+
 public class PlayerView : MonoBehaviour, IDamagable
 {
     public Transform Model;
@@ -37,12 +47,17 @@ public class PlayerView : MonoBehaviour, IDamagable
         }
     }
 
-    public void ThrowDependencies(SignalBus signalBus, PlayerDynamicData dynamicData)
+    public void ThrowDependencies(SignalBus signalBus, PlayerDynamicData dynamicData,string id)
     {
         if (!Photon.IsMine) return;
 
         SignalBus = signalBus;
         DynamicData = dynamicData;
+        if (Data==null || Data.Id != id)
+        {
+            Data = new UserDataPack() { Id = id, Nickname = $"player {id}", Experience = 0, Level = 1 };
+            Debug.LogError(Data.Id);
+        }
     }
 
     public void TakeDamage(int damage)
@@ -91,8 +106,6 @@ public class PlayerView : MonoBehaviour, IDamagable
 
     private void Start()
     {
-        UserDataPack localData = new UserDataPack() { Id = Photon.ViewID.ToString(), Nickname = $"player {Photon.ViewID}", Experience = 0, Level = 1 };
-        Data = localData;
         if (!Photon.IsMine)
         {
             var minePlayer = FindObjectsOfType<PlayerView>().First(p => p.Photon.IsMine);
@@ -102,11 +115,18 @@ public class PlayerView : MonoBehaviour, IDamagable
             DOVirtual.DelayedCall(2, () => GetData());
             return;
         }
-
-        DatabaseAccessService.Instance.Init(localData);
+        StartCoroutine(ConnectToDBCoroutine());
 
         transform.position = new Vector3(25.3f, 5, 68.3f);
         GetComponent<NavMeshAgent>().enabled = true;
+    }
+
+    private IEnumerator ConnectToDBCoroutine()
+    {
+        yield return new WaitUntil(() => Data != null);
+
+        DatabaseAccessService.Instance.Init(Data);
+        GetData();
     }
 
     private void OnDisable()
@@ -119,6 +139,16 @@ public class PlayerView : MonoBehaviour, IDamagable
     {
         var datas = DatabaseAccessService.Instance.GetDataFromDB();
         var result = await datas;
-        Data = result.First(d => d.Id == Photon.ViewID.ToString());
+        foreach(var data in result)
+        {
+            if (data.Id == Data.Id)
+            {
+                Data = data;
+                DatabaseAccessService.Instance.Init(Data);
+                SignalBus.FireSignal(new OnDBDataLoadedSignal(Data));
+                return;
+            }
+        }
+        DatabaseAccessService.Instance.SaveNewData(Data);
     }
 }

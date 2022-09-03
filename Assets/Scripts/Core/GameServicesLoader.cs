@@ -55,14 +55,14 @@ public class GameServicesLoader : MonoBehaviour
             new InventoryUiService(_signalBus, _gameCanvas),
             new PlayerGearService(_signalBus, _playerView, _weaponOffsetConfig),
             new PlayerModelUpdateService(_signalBus, _renderSpace, _playerView, _weaponOffsetConfig,_playerView.OtherPlayersContainer),
-            new PlayerDataService(_signalBus, _levelsConfig),
+            new PlayerDataService(_signalBus, _levelsConfig,"1"),
             new PlayerStatesService(_signalBus),
             new VFXService(_signalBus,_playerView),
             new ItemCollectService(_signalBus,_updateProvider,_playerView),
             new PlayerMovementService(_signalBus,_playerView,_updateProvider,_mainCameraAnchor.Camera)
         };
 
-        _playerView.ThrowDependencies(_signalBus, (_services.First(s => s is PlayerDataService) as PlayerDataService).DynamicData);
+        _playerView.ThrowDependencies(_signalBus, (_services.First(s => s is PlayerDataService) as PlayerDataService).DynamicData, (_services.First(s => s is PlayerDataService) as PlayerDataService).Id);
 
         foreach (var service in _services)
             service.OnServicesLoaded(_services.ToArray());

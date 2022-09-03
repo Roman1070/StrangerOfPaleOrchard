@@ -5,11 +5,13 @@ public class PlayerDataService : LoadableService
     private List<PlayerDataControllerBase> _controllers;
     private PlayerLevelsConfig _levelsConfig;
 
+    public readonly string Id;
     public PlayerDynamicData DynamicData { get; private set; }
 
-    public PlayerDataService(SignalBus signalBus, PlayerLevelsConfig levelConfig) : base(signalBus)
+    public PlayerDataService(SignalBus signalBus, PlayerLevelsConfig levelConfig, string id) : base(signalBus)
     {
         _levelsConfig = levelConfig;
+        Id = id;
         DynamicData = new PlayerDynamicData() { Health = 100 };
         InitControllers();
     }
@@ -23,7 +25,7 @@ public class PlayerDataService : LoadableService
     {
         _controllers = new List<PlayerDataControllerBase>()
         {
-            new PlayerExpirienceController(_signalBus,_levelsConfig)
+            new PlayerExperienceController(_signalBus,_levelsConfig)
         };
     }
 }

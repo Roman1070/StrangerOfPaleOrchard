@@ -62,7 +62,6 @@ public class DatabaseAccessService : MonoBehaviour
     public void Init(UserDataPack data)
     {
         LocalData = data;
-        SaveNewData(data);
     }
 
     public async void SaveNewData(UserDataPack data)

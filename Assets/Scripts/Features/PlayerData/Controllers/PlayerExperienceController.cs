@@ -17,11 +17,12 @@ public class PlayerExperienceController : PlayerDataControllerBase, IOnEventCall
     private float NormalizedExp => Mathf.Clamp((float)CurrentLevelExpirience / (NextLevelRequiredExp - CurrentLevelRequiredExp),0,1);
 
     private PlayerLevelsConfig _levelsConfig;
+    private PlayerView _player;
 
-    public PlayerExperienceController(SignalBus signalBus, PlayerLevelsConfig levelConfig) : base(signalBus)
+    public PlayerExperienceController(SignalBus signalBus, PlayerLevelsConfig levelConfig, PlayerView player) : base(signalBus)
     {
         _levelsConfig = levelConfig;
-
+        _player = player;
         if (Level == 0)
         {
             Experience = 0;
@@ -33,15 +34,17 @@ public class PlayerExperienceController : PlayerDataControllerBase, IOnEventCall
         DOVirtual.DelayedCall(0.1f, () => { signalBus.FireSignal(new UpdatePlayerUiWidgetSignal(NormalizedExp, Level, false)); });
     }
 
-    private void OnDataLoaded(OnDBDataLoadedSignal obj)
+    private void OnDataLoaded(OnDBDataLoadedSignal signal)
     {
-        Experience = obj.Data.Experience;
+        if (!signal.Player.Photon.IsMine) return;
+        Experience = signal.Data.Experience;
 
         UpdateLevel();
     }
 
     private void OnExpChanged(OnExperienceChangedSignal signal)
     {
+        if (signal.Player.Photon.ViewID != _player.Photon.ViewID) return;
         Experience += signal.Value;
 
         UpdateLevel();

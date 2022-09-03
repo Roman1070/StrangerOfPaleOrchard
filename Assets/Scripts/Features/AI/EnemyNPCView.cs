@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Zenject;
 
-public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservable
+public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget
 {
     [Inject] private UpdateProvider _updateProvider;
 
@@ -241,16 +241,5 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget, IPunObservab
         {
             Die();
         }
-    }
-
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        /*if (stream.IsWriting)
-         {
-             stream.SendNext();
-         }
-         else
-         {
-         }*/
     }
 }

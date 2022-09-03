@@ -59,7 +59,7 @@ public class DevConsoleService : LoadableService
         switch (command)
         {
             case "addexp":
-                _signalBus.FireSignal(new OnExperienceChangedSignal((int)_args[0]));
+                //_signalBus.FireSignal(new OnExperienceChangedSignal((int)_args[0]));
                 break;
             case "addweapon":
                 _signalBus.FireSignal(new OnItemCountChangedSignal(new EnumerableItem[] { new EnumerableItem("WEAPON_"+(string)_args[0], 1) }));

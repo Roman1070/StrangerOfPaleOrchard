@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -19,7 +20,7 @@ public class OtherPlayersExperienceDispayController : GameUiControllerBase
         _updateProvider = updateProvider;
         _levelsConfig = levelsConfig;
         _updateProvider.Updates.Add(Update);
-        _otherPlayers.OnPlayerInserted += OnNewPlayerJoined;
+        _otherPlayers.OnPlayerJoined += OnNewPlayerJoined;
         _otherPlayers.OnPlayerRemoved += OnPlayerLeft;
     }
 
@@ -36,8 +37,14 @@ public class OtherPlayersExperienceDispayController : GameUiControllerBase
     private void OnNewPlayerJoined(PlayerView player)
     {
         var newWidget = GameObject.Instantiate(Resources.Load<OtherPlayerWidgetView>(prefabPath),_gameCanvas.transform);
-        newWidget.Init(_camera,_updateProvider,player,player.Data.Nickname,player.Data.Level,player.Data.Experience/200f);
-        _anchoredWidgets.Add(newWidget,player);
+        player.StartCoroutine(OnPlayerJoinedCoroutine(player, newWidget));
+    }
+
+    private IEnumerator OnPlayerJoinedCoroutine(PlayerView player, OtherPlayerWidgetView widget)
+    {
+        yield return new WaitUntil(() => player.Data != null);
+        widget.Init(_camera, _updateProvider, player, player.Data.Nickname, _levelsConfig.GetLevelByExp(player.Data.Experience), _levelsConfig.GetCurrentLevelNormalizedExp(player.Data.Experience));
+        _anchoredWidgets.Add(widget, player);
     }
 
     private void Update()

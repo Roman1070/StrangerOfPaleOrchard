@@ -41,12 +41,14 @@ public class DatabaseAccessService : MonoBehaviour
     private MongoClient _mongoClient = new MongoClient("mongodb+srv://DerTraeumer:Isqeqbepiscoke1070@cluster0.8i2lysa.mongodb.net/?retryWrites=true&w=majority");
     IMongoDatabase _database;
     IMongoCollection<BsonDocument> _collection;
-    public UserDataPack LocalData { get; private set; }
+    public Dictionary<PlayerView,UserDataPack> LocalData { get; private set; }
 
     
 
     private void OnEnable()
     {
+        LocalData = new Dictionary<PlayerView, UserDataPack>();
+
         _database = _mongoClient.GetDatabase("SPODB");
 
         _collection = _database.GetCollection<BsonDocument>("UsersData");
@@ -56,13 +58,15 @@ public class DatabaseAccessService : MonoBehaviour
 
     private void OnExpChanged(OnExperienceChangedSignal obj)
     {
-        LocalData.Experience += obj.Value;
-        UpdateExperience(LocalData);
+        LocalData[obj.Player].Experience += obj.Value;
+        UpdateExperience(LocalData[obj.Player]);
     }
 
-    public void Init(UserDataPack data)
+    public void SetLocalData(PlayerView player, UserDataPack data)
     {
-        LocalData = data;
+        if (LocalData.ContainsKey(player))
+            LocalData[player] = data;
+        else LocalData.Add(player, data);
     }
 
     public async void SaveNewData(UserDataPack data)

@@ -5,7 +5,7 @@ using UnityEngine;
 public class OtherPlayersContainer : MonoBehaviour
 {
     public List<PlayerView> Players;
-    public event Action<PlayerView> OnPlayerInserted;
+    public event Action<PlayerView> OnPlayerJoined;
     public event Action<PlayerView> OnPlayerRemoved;
 
     private void Awake()
@@ -16,7 +16,7 @@ public class OtherPlayersContainer : MonoBehaviour
     public void Insert(PlayerView player)
     {
         Players.Add(player);
-        OnPlayerInserted?.Invoke(player);
+        OnPlayerJoined?.Invoke(player);
     }
     public void Remove(PlayerView player) 
     {

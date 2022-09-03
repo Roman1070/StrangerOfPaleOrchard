@@ -47,14 +47,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 795541417178074152}
-  - component: {fileID: 1639848298521068737}
   - component: {fileID: 3099874770490587427}
   - component: {fileID: 684478613}
   - component: {fileID: 2271864118881360616}
-  - component: {fileID: 7572196703223466160}
   - component: {fileID: 7592170532105133530}
   - component: {fileID: 3174152152012999622}
   - component: {fileID: 6741228238964254898}
+  - component: {fileID: 8626206135221186367}
+  - component: {fileID: 1639848298521068737}
   m_Layer: 3
   m_Name: Player
   m_TagString: Player
@@ -78,25 +78,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1639848298521068737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9020809407807743868}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bc983531701388043bbf3c451fe18199, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Model: {fileID: 3756727896327743710}
-  GroundChecker: {fileID: 1411110047}
-  SpineAnchor: {fileID: 3756727897179381535}
-  HandAnchor: {fileID: 3756727896613828499}
-  WeaponsHolder: {fileID: 1803861602596607005}
-  Photon: {fileID: 3174152152012999622}
-  OtherPlayersContainer: {fileID: 6741228238964254898}
 --- !u!143 &3099874770490587427
 CharacterController:
   m_ObjectHideFlags: 0
@@ -178,22 +159,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &7572196703223466160
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9020809407807743868}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
-  m_SynchronizeScale: 0
-  m_UseLocal: 1
 --- !u!195 &7592170532105133530
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -235,7 +200,8 @@ MonoBehaviour:
   OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents:
-  - {fileID: 7572196703223466160}
+  - {fileID: 8626206135221186367}
+  - {fileID: 1639848298521068737}
   - {fileID: 7620025108264688283}
   sceneViewId: 0
   InstantiationId: 0
@@ -253,6 +219,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Players: []
+--- !u!114 &8626206135221186367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9020809407807743868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 627855c7f81362d41938ffe0b1475957, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_SynchronizePosition: 1
+  m_SynchronizeRotation: 1
+  m_SynchronizeScale: 0
+  m_UseLocal: 1
+--- !u!114 &1639848298521068737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9020809407807743868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc983531701388043bbf3c451fe18199, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Model: {fileID: 3756727896327743710}
+  GroundChecker: {fileID: 1411110047}
+  SpineAnchor: {fileID: 3756727897179381535}
+  HandAnchor: {fileID: 3756727896613828499}
+  WeaponsHolder: {fileID: 1803861602596607005}
+  Photon: {fileID: 3174152152012999622}
+  OtherPlayersContainer: {fileID: 6741228238964254898}
+  Id: 
 --- !u!1001 &331383362
 PrefabInstance:
   m_ObjectHideFlags: 0

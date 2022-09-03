@@ -9,7 +9,18 @@ public class PlayerBackendSynchronizer : MonoBehaviourPunCallbacks
     [SerializeField]
     private InputField _inputField;
 
-    private string _id;
+    public string Id { get; private set; }
+
+    private static PlayerBackendSynchronizer _instance;
+    public static PlayerBackendSynchronizer Instance
+    {
+        get
+        {
+            if (_instance == null)
+                _instance = GameObject.FindObjectOfType <PlayerBackendSynchronizer>();
+            return _instance;
+        }
+    }
 
     private void Start()
     {
@@ -19,7 +30,6 @@ public class PlayerBackendSynchronizer : MonoBehaviourPunCallbacks
 
     private void OnIdInput(string text)
     {
-        _id = text;
-        PlayerPrefs.SetString("ID", _id);
+        Id = text;
     }
 }

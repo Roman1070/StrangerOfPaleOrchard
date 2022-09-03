@@ -38,6 +38,6 @@ public class ShrineInteractController : ItemInteractControllerBase
     {
         (obj as InteractableShrine).VFX.loop = false;
         (obj as InteractableShrine).VFX.DOPlayBackwards();
-        _signalBus.FireSignal(new OnExperienceChangedSignal((obj as InteractableShrine).ExperienceAmount));
+        _signalBus.FireSignal(new OnExperienceChangedSignal((obj as InteractableShrine).ExperienceAmount, _player));
     }
 }

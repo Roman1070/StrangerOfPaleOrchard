@@ -2,7 +2,6 @@ using DG.Tweening;
 using Photon.Pun;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
@@ -10,14 +9,16 @@ using UnityEngine.AI;
 public class OnDBDataLoadedSignal : ISignal
 {
     public UserDataPack Data;
+    public PlayerView Player;
 
-    public OnDBDataLoadedSignal(UserDataPack data)
+    public OnDBDataLoadedSignal(UserDataPack data, PlayerView player)
     {
         Data = data;
+        Player = player;
     }
 }
 
-public class PlayerView : MonoBehaviour, IDamagable
+public class PlayerView : MonoBehaviour, IDamagable, IPunObservable
 {
     public Transform Model;
     public Transform GroundChecker;
@@ -32,7 +33,7 @@ public class PlayerView : MonoBehaviour, IDamagable
 
     public int DamagableId => 0;
 
-
+    public string Id;
     public SignalBus SignalBus { get; private set; }
     public PlayerDynamicData DynamicData { get; private set; }
 
@@ -46,17 +47,12 @@ public class PlayerView : MonoBehaviour, IDamagable
             return _animator;
         }
     }
-
-    public void ThrowDependencies(SignalBus signalBus, PlayerDynamicData dynamicData,string id)
+    public void ThrowDependencies(SignalBus signalBus, PlayerDynamicData dynamicData, string id)
     {
         if (!Photon.IsMine) return;
 
         SignalBus = signalBus;
         DynamicData = dynamicData;
-        if (Data==null || Data.Id != id)
-        {
-            Data = new UserDataPack() { Id = id, Nickname = $"player {id}", Experience = 0, Level = 1 };
-        }
     }
 
     public void TakeDamage(int damage)
@@ -89,7 +85,7 @@ public class PlayerView : MonoBehaviour, IDamagable
     [PunRPC]
     private void SetDrawingWeaponRemoteTrigger(bool draw)
     {
-        Animator.SetTrigger(draw? "DrawWeapon" : "RemoveWeapon");
+        Animator.SetTrigger(draw ? "DrawWeapon" : "RemoveWeapon");
     }
     [PunRPC]
     private void SendRemoteCombatTrigger(string id)
@@ -111,22 +107,16 @@ public class PlayerView : MonoBehaviour, IDamagable
             minePlayer.OtherPlayersContainer.Insert(this);
             SignalBus = minePlayer.SignalBus;
             DynamicData = new PlayerDynamicData() { Health = 100 };
-            DOVirtual.DelayedCall(2, () => GetData());
             return;
         }
-        StartCoroutine(ConnectToDBCoroutine());
-
+        Id = PlayerBackendSynchronizer.Instance.Id;
+        Data = new UserDataPack() { Id = Id, Nickname = $"player {Id}", Experience = 0, Level = 1 };
+        DatabaseAccessService.Instance.SetLocalData(this,Data);
+        GetData();
         transform.position = new Vector3(25.3f, 4, 68.3f);
         GetComponent<NavMeshAgent>().enabled = true;
     }
 
-    private IEnumerator ConnectToDBCoroutine()
-    {
-        yield return new WaitUntil(() => Data != null);
-
-        DatabaseAccessService.Instance.Init(Data);
-        GetData();
-    }
 
     private void OnDisable()
     {
@@ -138,16 +128,33 @@ public class PlayerView : MonoBehaviour, IDamagable
     {
         var datas = DatabaseAccessService.Instance.GetDataFromDB();
         var result = await datas;
-        foreach(var data in result)
+        foreach (var data in result)
         {
             if (data.Id == Data.Id)
             {
                 Data = data;
-                DatabaseAccessService.Instance.Init(Data);
-                SignalBus.FireSignal(new OnDBDataLoadedSignal(Data));
+                DatabaseAccessService.Instance.SetLocalData(this, Data);
+                SignalBus.FireSignal(new OnDBDataLoadedSignal(Data,this));
                 return;
             }
         }
         DatabaseAccessService.Instance.SaveNewData(Data);
+    }
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(int.Parse(Id));
+        }
+        else
+        {
+            Id = ((int)stream.ReceiveNext()).ToString();
+            if (Data == null && !Photon.IsMine)  
+            {
+                Data = new UserDataPack() { Id = Id, Nickname = $"player {Id}", Experience = 0, Level = 1 };
+                DatabaseAccessService.Instance.SetLocalData(this, Data);
+                GetData();
+            }
+        }
     }
 }

@@ -33,7 +33,7 @@ public class PlayerModelUpdateService : LoadableService
                 }
             }
         };
-        _otherPlayers.OnPlayerInserted += OnPlayerJoined;
+        _otherPlayers.OnPlayerJoined += OnPlayerJoined;
         _otherPlayers.OnPlayerRemoved += OnPlayerLeft;
         signalBus.Subscribe<OnEquippedItemChangedSignal>(OnEquipementChanged, this);
     }

@@ -139,7 +139,7 @@ public class PlayerCombatService : LoadableService, IOnEventCallback
                     EnemyNPCView defeatedEnemy = PhotonView.Find(killedEnemyId).GetComponent<EnemyNPCView>();
                     int level = defeatedEnemy.Level;
                     int exp = defeatedEnemy.Config.LevelData[level - 1].ExpOnKill;
-                    _signalBus.FireSignal(new OnExperienceChangedSignal(exp));
+                    _signalBus.FireSignal(new OnExperienceChangedSignal(exp, _player));
                     _recentTargetsPhotonIds.Remove(killedEnemyId);
                 }
                 break;

@@ -9,16 +9,11 @@ public class PlayerLevelsConfig : ScriptableObject
 
     public float GetCurrentLevelNormalizedExp(int exp)
     {
-        float currentLevelExp = exp;
-        int i;
-        for(i = 0; i < ExpOnLevel.Length; i++)
-        {
-            if (currentLevelExp >= ExpOnLevel[i]) currentLevelExp -= ExpOnLevel[i];
-            else break;
-        }
-        int currentLevelIndex = i-1;
-        currentLevelExp += ExpOnLevel[currentLevelIndex];
-        return (currentLevelExp - ExpOnLevel[currentLevelIndex]) / (ExpOnLevel[currentLevelIndex + 1] - ExpOnLevel[currentLevelIndex]);
+        int currentLevel = GetLevelByExp(exp);
+        int expRequiredByCurrentLevel = ExpOnLevel[currentLevel - 1];
+        int nextLevelExp = ExpOnLevel[currentLevel];
+
+        return (float)(exp - expRequiredByCurrentLevel) / (nextLevelExp - expRequiredByCurrentLevel);
     }
 
     public int GetLevelByExp(int exp)

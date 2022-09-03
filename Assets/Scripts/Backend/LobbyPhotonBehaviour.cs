@@ -8,6 +8,8 @@ using Zenject;
 
 public class LobbyPhotonBehaviour : MonoBehaviourPunCallbacks
 {
+    private bool _isConnected;
+
     private void Start()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
@@ -17,17 +19,24 @@ public class LobbyPhotonBehaviour : MonoBehaviourPunCallbacks
 
     public void CreateRoom()
     {
-        PhotonNetwork.CreateRoom(null, new Photon.Realtime.RoomOptions { MaxPlayers = 60 });
+        if (!_isConnected) return;
+
+        if (PhotonNetwork.CountOfRooms == 0)
+        {
+            PhotonNetwork.CreateRoom("Room", new Photon.Realtime.RoomOptions { MaxPlayers = 60 });
+        }
+        else
+        {
+            PhotonNetwork.JoinRoom("Room");
+        }
     }
-    public void JoinRoom()
-    {
-        PhotonNetwork.JoinRandomRoom();
-    }
+
 
     public override void OnConnectedToMaster()
     {
-        Debug.LogError("Connected to master");
+        _isConnected = true;
     }
+
     public override void OnJoinedRoom()
     {
         PhotonNetwork.LoadLevel("GameScene");

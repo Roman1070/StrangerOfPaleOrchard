@@ -55,7 +55,7 @@ public class GameServicesLoader : MonoBehaviour
             new InventoryUiService(_signalBus, _gameCanvas),
             new PlayerGearService(_signalBus, _playerView, _weaponOffsetConfig),
             new PlayerModelUpdateService(_signalBus, _renderSpace, _playerView, _weaponOffsetConfig,_playerView.OtherPlayersContainer),
-            new PlayerDataService(_signalBus, _levelsConfig,PlayerPrefs.GetString("ID")),
+            new PlayerDataService(_signalBus, _levelsConfig,PlayerBackendSynchronizer.Instance.Id,_playerView),
             new PlayerStatesService(_signalBus),
             new VFXService(_signalBus,_playerView),
             new ItemCollectService(_signalBus,_updateProvider,_playerView),

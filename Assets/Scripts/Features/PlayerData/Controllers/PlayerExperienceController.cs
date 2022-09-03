@@ -29,11 +29,11 @@ public class PlayerExperienceController : PlayerDataControllerBase, IOnEventCall
         }
 
         signalBus.Subscribe<OnExperienceChangedSignal>(OnExpChanged, this);
-        signalBus.Subscribe<OnDBDataLoadedSignal>(OnDataloaded, this);
+        signalBus.Subscribe<OnDBDataLoadedSignal>(OnDataLoaded, this);
         DOVirtual.DelayedCall(0.1f, () => { signalBus.FireSignal(new UpdatePlayerUiWidgetSignal(NormalizedExp, Level, false)); });
     }
 
-    private void OnDataloaded(OnDBDataLoadedSignal obj)
+    private void OnDataLoaded(OnDBDataLoadedSignal obj)
     {
         Experience = obj.Data.Experience;
 

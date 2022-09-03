@@ -8,9 +8,6 @@ using Zenject;
 
 public class LobbyPhotonBehaviour : MonoBehaviourPunCallbacks
 {
-    [SerializeField]
-    private InputField _inputField;
-
     private void Start()
     {
         PhotonNetwork.AutomaticallySyncScene = true;

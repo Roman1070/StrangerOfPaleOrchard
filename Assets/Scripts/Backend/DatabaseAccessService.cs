@@ -11,7 +11,7 @@ using Zenject;
 public class DatabaseAccessService : MonoBehaviour
 {
     [Inject]
-    private SignalBus _signalBus;
+    protected readonly SignalBus _signalBus;
 
     private PlayerView _player;
 
@@ -43,6 +43,7 @@ public class DatabaseAccessService : MonoBehaviour
     IMongoCollection<BsonDocument> _collection;
     public UserDataPack LocalData { get; private set; }
 
+    
 
     private void OnEnable()
     {

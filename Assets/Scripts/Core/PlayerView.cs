@@ -56,7 +56,6 @@ public class PlayerView : MonoBehaviour, IDamagable
         if (Data==null || Data.Id != id)
         {
             Data = new UserDataPack() { Id = id, Nickname = $"player {id}", Experience = 0, Level = 1 };
-            Debug.LogError(Data.Id);
         }
     }
 
@@ -117,7 +116,7 @@ public class PlayerView : MonoBehaviour, IDamagable
         }
         StartCoroutine(ConnectToDBCoroutine());
 
-        transform.position = new Vector3(25.3f, 5, 68.3f);
+        transform.position = new Vector3(25.3f, 4, 68.3f);
         GetComponent<NavMeshAgent>().enabled = true;
     }
 

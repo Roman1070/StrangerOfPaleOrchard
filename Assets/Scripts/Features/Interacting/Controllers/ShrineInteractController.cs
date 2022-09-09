@@ -30,7 +30,8 @@ public class ShrineInteractController : ItemInteractControllerBase
         if (_statesService.States[PlayerState.DrawingWeapon] || _statesService.States[PlayerState.IsArmed]) 
             yield return new WaitUntil(()=>!_statesService.States[PlayerState.DrawingWeapon] && !_statesService.States[PlayerState.IsArmed]);
 
-        _animator.SetTrigger("Pray");
+        _animator.SetTrigger(StringConst.PRAY);
+        _player.Photon.RPC("SetRemoteInteractingTrigger", Photon.Pun.RpcTarget.Others, StringConst.PRAY);
         _player.StartCoroutine(InteractProcess(obj));
     }
 

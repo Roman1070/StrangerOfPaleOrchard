@@ -99,6 +99,12 @@ public class PlayerView : MonoBehaviour, IDamagable, IPunObservable
         Animator.SetFloat("Speed", speed);
     }
 
+    [PunRPC]
+    private void SetRemoteInteractingTrigger(string id)
+    {
+        Animator.SetLayerWeight(Animator.GetLayerIndex("InteractingLayer"), 1);
+        Animator.SetTrigger(id);
+    }
     private void Start()
     {
         if (!Photon.IsMine)

@@ -147,7 +147,7 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget
 
         _currentAttack = _config.GetRandomAttack();
         _animator.SetTrigger(_currentAttack.Id);
-        _target.TakeDamage(10);
+        _target.TakeDamage(Damage);
 
         while (_target != null && DistanceToTarget <= _config.AttackRange)
         {
@@ -155,7 +155,7 @@ public class EnemyNPCView : NPCViewBase, IDamagable, IPlayerTarget
             yield return new WaitForSeconds(_currentAttack.Duration);
             _currentAttack = _config.GetRandomAttack(_currentAttack.Id);
             _animator.SetTrigger(_currentAttack.Id);
-            _target.TakeDamage(10);
+            _target.TakeDamage(Damage);
         }
     }
 

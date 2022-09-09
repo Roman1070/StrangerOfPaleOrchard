@@ -11,7 +11,8 @@ public class ItemCollectController : ItemInteractControllerBase
     {
         if (obj is CollectableObject)
         {
-            _animator.SetTrigger("Collect");
+            _animator.SetTrigger(StringConst.COLLECT);
+            _player.Photon.RPC("SetRemoteInteractingTrigger",Photon.Pun.RpcTarget.Others,StringConst.COLLECT);
             obj = obj as CollectableObject;
             _player.StartCoroutine(InteractProcess(obj));
         }

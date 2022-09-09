@@ -1,3 +1,6 @@
-﻿internal class InventoryPanel :Panel
+﻿using UnityEngine.UI;
+
+public class InventoryPanel :Panel
 {
+    public Button CloseInventory; 
 }

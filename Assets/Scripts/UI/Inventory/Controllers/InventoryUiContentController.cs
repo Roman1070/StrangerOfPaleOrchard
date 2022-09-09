@@ -7,16 +7,19 @@ public class InventoryUiContentController : InventoryUiControllerBase
     private ItemsMap ItemsMap => _inventoryService.ItemsMap;
 
     private Dictionary<string, bool> _itemEquiped;
+    private InventoryPanel _panel;
 
     public InventoryUiContentController(SignalBus signalBus, GameCanvas gameCanvas, InventoryService inventoryService) : base(signalBus, gameCanvas, inventoryService)
     {
         _itemEquiped = new Dictionary<string, bool>();
         foreach (var item in ItemsMap.Items)
             _itemEquiped.Add(item.Id, false);
-
+        _panel = _gameCanvas.GetView<InventoryPanel>();
         signalBus.Subscribe<SetActivePanelSignal>(UpdatePanel, this);
         signalBus.Subscribe<UpdateEquipedItemsDataSignal>(OnEquipementChanged, this);
-
+        
+        _panel.CloseInventory.onClick.RemoveAllListeners();
+        _panel.CloseInventory.onClick.AddListener(() => signalBus.FireSignal(new SetActivePanelSignal(typeof(GameUiPanel))));
         UpdatePanel();
     }
 
@@ -27,7 +30,7 @@ public class InventoryUiContentController : InventoryUiControllerBase
             _itemEquiped[item.Id] = obj.EquipedItems.Values.ToList().Contains(item.Item);
         }
 
-        var views = _gameCanvas.GetView<InventoryPanel>().GetView<EquipementBlockView>().GetViews<ItemWidgetView>();
+        var views = _panel.GetView<EquipementBlockView>().GetViews<ItemWidgetView>();
         for(int i = 0; i < obj.EquipedItems.Keys.Count; i++)
         {
             var item = obj.EquipedItems[(ItemSlot)i];
@@ -55,7 +58,7 @@ public class InventoryUiContentController : InventoryUiControllerBase
 
     private void UpdateTab(int index, ItemGroup group)
     {
-        var itemWidgetViews = _gameCanvas.GetView<InventoryPanel>().GetView<TabsView>().TabMappings[index].Content.GetViews<ItemWidgetView>();
+        var itemWidgetViews = _panel.GetView<TabsView>().TabMappings[index].Content.GetViews<ItemWidgetView>();
         foreach (var item in itemWidgetViews) item.SetActive(false);
 
         var unequipedItems = ItemsMap.Items.Where(i => i.Item.GroupDef.Group == group && !_itemEquiped[i.Id]).ToArray();

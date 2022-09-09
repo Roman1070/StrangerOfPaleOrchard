@@ -36,6 +36,8 @@ public class GameServicesLoader : MonoBehaviour
     protected readonly CoroutineExecutor _coroutineExecutor;
     [Inject]
     protected readonly MainCameraAnchor _mainCameraAnchor;
+    [Inject]
+    protected readonly NPCContainer _npcContainer;
     #endregion
     private List<LoadableService> _services;
 
@@ -48,7 +50,7 @@ public class GameServicesLoader : MonoBehaviour
     {
         _services = new List<LoadableService>()
         {
-            new GameUiService(_signalBus, _gameCanvas, _movementConfig,_playerView.OtherPlayersContainer,_updateProvider,_mainCameraAnchor.Camera,_levelsConfig),
+            new GameUiService(_signalBus, _gameCanvas, _movementConfig,_playerView.OtherPlayersContainer,_updateProvider,_mainCameraAnchor.Camera,_levelsConfig,_npcContainer),
             //new DevConsoleService(_signalBus, _gameCanvas),
             new InventoryService(_signalBus, _itemsMap),
             new PlayerCombatService(_signalBus,_updateProvider,_mainCameraAnchor.Camera,_playerView,_combatConfig,_coroutineExecutor),

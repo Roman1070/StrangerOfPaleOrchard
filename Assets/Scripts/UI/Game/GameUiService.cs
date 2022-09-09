@@ -15,9 +15,11 @@ public class GameUiService : LoadableService
     private UpdateProvider _updateProvider;
     private Camera _camera;
     private PlayerLevelsConfig _levelsConfig;
+    private NPCContainer _npcContainer;
     private List<GameUiControllerBase> _controllers;
 
-    public GameUiService(SignalBus signalBus, GameCanvas canvas, PlayerMovementConfig config, OtherPlayersContainer otherPlayers, UpdateProvider updateProvider, Camera camera, PlayerLevelsConfig levelsConfig) : base(signalBus)
+    public GameUiService(SignalBus signalBus, GameCanvas canvas, PlayerMovementConfig config, OtherPlayersContainer otherPlayers,
+        UpdateProvider updateProvider, Camera camera, PlayerLevelsConfig levelsConfig, NPCContainer npcContainer) : base(signalBus)
     {
         _gameCanvas = canvas;
         _movementConfig = config;
@@ -25,6 +27,7 @@ public class GameUiService : LoadableService
         _updateProvider = updateProvider;
         _camera = camera;
         _levelsConfig = levelsConfig;
+        _npcContainer = npcContainer;
     }
 
     public override void OnServicesLoaded(params LoadableService[] services)
@@ -42,7 +45,8 @@ public class GameUiService : LoadableService
             new InteractButtonController(_signalBus, _gameCanvas,_statesService,_camera),
             new PlayerExperienceUiController(_signalBus,_gameCanvas),
             new UiPanelsController(_signalBus, _gameCanvas),
-            new OtherPlayersExperienceDispayController(_signalBus,_gameCanvas,_otherPlayers,_updateProvider,_camera,_levelsConfig)
+            new OtherPlayersExperienceDispayController(_signalBus,_gameCanvas,_otherPlayers,_updateProvider,_camera,_levelsConfig),
+            new EnemyHealthUIController(_signalBus,_gameCanvas,_npcContainer)
         };
     }
 }
